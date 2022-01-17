@@ -1,7 +1,8 @@
 # syntax=docker/dockerfile:1.3-labs
 
 ARG IPFS_BUILD_IMAGE_VERSION=1.17-alpine3.15
-FROM golang:${IPFS_BUILD_IMAGE_VERSION}} AS ipfs_build
+ARG NODE_RUNTIME_IMAGE_VERSION=16.13.2-alpine
+FROM golang:$IPFS_BUILD_IMAGE_VERSION AS ipfs_build
 
 ENV SRC_DIR /go/src/github.com/ipfs/go-ipfs
 
@@ -20,7 +21,7 @@ cp $SRC_DIR/cmd/ipfs/ipfs /target/ipfs
 rm -rf $SRC_DIR
 EOF
 
-FROM node:16.13.2-alpine
+FROM node:$NODE_RUNTIME_IMAGE_VERSION AS runtime
 RUN npm i -g npm@latest
 
 ARG LOGLEVEL
