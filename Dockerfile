@@ -1,19 +1,48 @@
-# syntax=docker/dockerfile:1.0.0-experimental
+# syntax=docker/dockerfile:1.3-labs
 
-FROM node:14.16.0-alpine
+ARG IPFS_BUILD_IMAGE_VERSION=1.17-alpine3.15
+FROM golang:${IPFS_BUILD_IMAGE_VERSION}} AS ipfs_build
 
-# Allow log level to be controlled. Uses an argument name that is different
-# from the existing environment variable, otherwise the environment variable
-# shadows the argument.
+ENV SRC_DIR /go/src/github.com/ipfs/go-ipfs
+
+RUN apk add --no-cache git make bash gcc musl-dev
+
+WORKDIR /target
+
+ARG IPFS_TAG="v0.11.0"
+
+RUN <<EOF
+set -ex
+git clone --branch $IPFS_TAG https://github.com/ipfs/go-ipfs.git $SRC_DIR
+cd $SRC_DIR
+make build
+cp $SRC_DIR/cmd/ipfs/ipfs /target/ipfs
+rm -rf $SRC_DIR
+EOF
+
+FROM node:16.13.2-alpine
+RUN npm i -g npm@latest
+
 ARG LOGLEVEL
 ENV NPM_CONFIG_LOGLEVEL ${LOGLEVEL}
 
-WORKDIR /ipfs
+COPY --from=ipfs_build /target /usr/local/bin
+
+WORKDIR /vitalam-ipfs
 
 # Install base dependencies
 COPY . .
-RUN npm install --production
+RUN npm ci --production
 
+ENV IPFS_PATH=/ipfs
 
+# Expose 80 for healthcheck
 EXPOSE 80
-CMD ["node", "./app/index.js"]
+# Expose 4001 for ipfs swarm
+EXPOSE 4001
+# expose 5001 for ipfs api
+EXPOSE 5001
+
+HEALTHCHECK CMD curl --fail http://localhost:80/health || exit 1
+
+ENTRYPOINT [ "./app/index.js" ]

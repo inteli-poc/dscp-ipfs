@@ -1,0 +1,14 @@
+{{- $fullName := include "vitalam-ipfs.fullname" . -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: vitalam-ipfs
+  labels:
+    {{- include "vitalam-ipfs.labels" . | nindent 4 }}
+spec:
+  selector:
+    name: {{ include "vitalam-ipfs.fullname" . }}
+  ports:
+    - protocol: 'TCP'
+      port: 80
+      targetPort: {{ .Values.config.port }}

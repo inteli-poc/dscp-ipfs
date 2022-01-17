@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vitalam-ipfs.fullname" . }}
+  labels:
+    {{- include "vitalam-ipfs.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      name: {{ include "vitalam-ipfs.fullname" . }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+      labels:
+        name: {{ include "vitalam-ipfs.fullname" . }}
+    spec:
+      {{- include "vitalam-ipfs.imagePullSecrets" . | indent 6 }}
+      initContainers: []
+
+      containers:
+        - name: {{ include "vitalam-ipfs.fullname" . }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.config.port }}
+            initialDelaySeconds: 15
+            timeoutSeconds: 3
+            periodSeconds: 5
+          env:
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "vitalam-ipfs.fullname" . }}-config
+                  key: port
