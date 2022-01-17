@@ -196,7 +196,14 @@ jobs:
 
   publish:
     name: "Publish package"
-    needs: [preconditions, helm-lint, helm-test, lint, dependency-check, tests, check-version]
+    needs:
+      - preconditions
+      - helm-lint
+      # - helm-test
+      - lint
+      - dependency-check
+      - tests
+      - check-version
     runs-on: ubuntu-latest
     if: ${{ needs.check-version.outputs.is_new_version == 'true' }}
 
