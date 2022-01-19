@@ -3,5 +3,5 @@ config:
 image:
   repository: ghcr.io/digicatapult/vitalam-ipfs
   pullPolicy: IfNotPresent
-  tag: 'v1.0.0'
+  tag: 'v1.0.1'
   pullSecrets: ['ghcr-digicatapult']
