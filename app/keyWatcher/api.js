@@ -15,6 +15,7 @@ const apiOptions = {
     TokenMetadataValue: 'MetadataValue',
     Token: {
       id: 'TokenId',
+      original_id: 'TokenId',
       roles: 'BTreeMap<RoleKey, AccountId>',
       creator: 'AccountId',
       created_at: 'BlockNumber',
@@ -32,11 +33,13 @@ const apiOptions = {
       _enum: {
         File: 'Hash',
         Literal: `[u8; ${METADATA_VALUE_LITERAL_LENGTH}]`,
+        TokenId: 'TokenId',
         None: null,
       },
     },
     Role: {
-      _enum: ['Admin', 'ManufacturingEngineer', 'ProcurementBuyer', 'ProcurementPlanner', 'Supplier'],
+      // order must match node as values are referenced by index. First entry is default.
+      _enum: ['Owner', 'Customer', 'AdditiveManufacturer', 'Laboratory', 'Buyer', 'Supplier', 'Reviewer'],
     },
   },
 }
