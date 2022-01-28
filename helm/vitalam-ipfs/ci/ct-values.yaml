@@ -1,4 +1,0 @@
-image:
-  repository: 'vitalam-ipfs'
-  tag: 'latest'
-  PullPolicy: Never
