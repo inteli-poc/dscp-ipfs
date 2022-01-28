@@ -252,6 +252,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           charts_dir: helm
+          helm_version: 3.8.0
 
       # Build github release
       - name: Build release version
