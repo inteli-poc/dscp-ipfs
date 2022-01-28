@@ -1,9 +1,15 @@
 apiVersion: v2
 name: vitalam-ipfs
-appVersion: '1.1.0'
+appVersion: '1.2.0'
 description: A Helm chart for vitalam-ipfs
-version: '1.1.0'
+version: '1.2.0'
 type: application
+dependencies:
+  - name: vitalam-node
+    version: '0.23.5'
+    repository: https://digicatapult.github.io/vitalam-node/
+    condition: vitalamNode.enabled
+    alias: vitalamNode
 maintainers:
   - name: digicatapult
     email: opensource@digicatapult.org.uk

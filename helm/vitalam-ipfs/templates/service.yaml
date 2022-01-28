@@ -1,8 +1,7 @@
-{{- $fullName := include "vitalam-ipfs.fullname" . -}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: vitalam-ipfs
+  name: {{ include "vitalam-ipfs.fullname" . }}-swarm
   labels:
     {{- include "vitalam-ipfs.labels" . | nindent 4 }}
 spec:
@@ -10,5 +9,19 @@ spec:
     name: {{ include "vitalam-ipfs.fullname" . }}
   ports:
     - protocol: 'TCP'
-      port: 80
-      targetPort: {{ .Values.config.port }}
+      port: 4001
+      targetPort: {{ .Values.config.ipfsSwarmPort }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "vitalam-ipfs.fullname" . }}-api
+  labels:
+    {{- include "vitalam-ipfs.labels" . | nindent 4 }}
+spec:
+  selector:
+    name: {{ include "vitalam-ipfs.fullname" . }}
+  ports:
+    - protocol: 'TCP'
+      port: 5001
+      targetPort: {{ .Values.config.ipfsApiPort }}

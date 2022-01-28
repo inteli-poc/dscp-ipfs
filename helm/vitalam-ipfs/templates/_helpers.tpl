@@ -41,6 +41,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
+IPFS init container name
+*/}}
+{{- define "vitalam-ipfs.initIpfsConfig.name" -}}
+{{- if .Values.fullnameOverride -}}
+{{- printf "%s-ipfs-config" .Values.fullnameOverride | lower | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s-ipfs-config" .Release.Name .Chart.Name | lower | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Conditionally populate imagePullSecrets if present in the context
 */}}
 {{- define "vitalam-ipfs.imagePullSecrets" -}}
