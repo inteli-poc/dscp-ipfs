@@ -3,13 +3,13 @@ Create name to be used with deployment.
 */}}
 {{- define "vitalam-ipfs.fullname" -}}
     {{- if .Values.fullnameOverride -}}
-        {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+        {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" | lower -}}
     {{- else -}}
       {{- $name := default .Chart.Name .Values.nameOverride -}}
       {{- if contains $name .Release.Name -}}
-        {{- .Release.Name | trunc 63 | trimSuffix "-" -}}
+        {{- .Release.Name | trunc 63 | trimSuffix "-" | lower -}}
       {{- else -}}
-        {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+        {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" | lower -}}
       {{- end -}}
     {{- end -}}
 {{- end -}}
@@ -18,8 +18,20 @@ Create name to be used with deployment.
 Create chart name and version as used by the chart label.
 */}}
 {{- define "vitalam-ipfs.chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" | lower}}
 {{- end }}
+
+{{- define "vitalam-ipfs-node.fullname" -}}
+{{- if .Values.vitalamNode.enabled -}}
+{{- template "vitalam-node.fullname" .Subcharts.vitalamNode -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "vitalam-ipfs.ipfsApiPort" -}}
+{{- if .Values.config.ipfsApiPort -}}
+{{- .Values.config.ipfsApiPort | quote -}}
+{{- end -}}
+{{- end -}}
 
 {{/*
 Selector labels

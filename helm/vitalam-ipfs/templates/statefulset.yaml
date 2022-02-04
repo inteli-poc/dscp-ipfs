@@ -62,13 +62,8 @@ spec:
                 configMapKeyRef:
                   name: {{ include "vitalam-ipfs.fullname" . }}-config
                   key: nodeHost
-            {{- if .Values.config.nodePort }}
             - name: NODE_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ include "vitalam-ipfs.fullname" . }}-config
-                  key: nodePort
-            {{- end }}
+              value: "9944"
             {{- if .Values.config.ipfsCommand }}
             - name: IPFS_EXECUTABLE
               valueFrom:
