@@ -76,6 +76,11 @@ spec:
                 configMapKeyRef:
                   name: {{ include "vitalam-ipfs.fullname" . }}-config
                   key: ipfsArgs
+            - name: IPFS_LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "vitalam-ipfs.fullname" . }}-config
+                  key: ipfsLogLevel
             - name: IPFS_PATH
               value: {{ .Values.config.ipfsDataPath }}
           volumeMounts:

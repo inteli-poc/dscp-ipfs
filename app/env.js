@@ -32,6 +32,7 @@ const vars = envalid.cleanEnv(
     IPFS_LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
     METADATA_KEY_LENGTH: envalid.num({ default: 32 }),
     METADATA_VALUE_LITERAL_LENGTH: envalid.num({ default: 32 }),
+    PROCESS_IDENTIFIER_LENGTH: envalid.num({ default: 32 }),
   },
   {
     strict: true,
