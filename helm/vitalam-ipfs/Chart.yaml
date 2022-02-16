@@ -1,8 +1,8 @@
 apiVersion: v2
 name: vitalam-ipfs
-appVersion: '1.2.6'
+appVersion: '1.2.7'
 description: A Helm chart for vitalam-ipfs
-version: '1.2.6'
+version: '1.2.7'
 type: application
 dependencies:
   - name: vitalam-node
