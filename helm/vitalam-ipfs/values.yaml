@@ -33,7 +33,7 @@ config:
 image:
   repository: ghcr.io/digicatapult/vitalam-ipfs
   pullPolicy: IfNotPresent
-  tag: 'v1.2.8'
+  tag: 'v1.2.9'
 
 storage:
   storageClass: ""
