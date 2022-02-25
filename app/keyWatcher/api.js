@@ -60,7 +60,14 @@ const apiOptions = {
       _enum: ['Disabled', 'Enabled'],
     },
     Restriction: {
-      _enum: ['None', 'SenderOwnsAllInputs'],
+      _enum: {
+        None: '()',
+        SenderOwnsAllInputs: '()',
+        FixedNumberOfInputs: 'FixedNumberOfInputsRestriction',
+      },
+    },
+    FixedNumberOfInputsRestriction: {
+      num_inputs: 'u32',
     },
     IsNew: 'bool',
     Restrictions: 'Vec<Restriction>',

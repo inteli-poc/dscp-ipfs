@@ -1,9 +1,9 @@
 version: '3'
 services:
   vitalam-node:
-    image: ghcr.io/digicatapult/vitalam-node:v2.9.3
-    command: 
-      --base-path /data/ 
+    image: ghcr.io/digicatapult/vitalam-node:v2.10.0
+    command:
+      --base-path /data/
       --dev
       --unsafe-ws-external
       --unsafe-rpc-external
