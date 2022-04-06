@@ -1,7 +1,7 @@
 # fullNameOverride:
 config:
   healthCheckPort: 80
-  # nodeHost: "" # This overrides vitalamNode.enabled
+  # nodeHost: "" # This overrides dscpNode.enabled
   # nodePort:
   logLevel: info
   ipfsApiPort: 5001
@@ -31,13 +31,13 @@ config:
   enableLivenessProbe: true
 
 image:
-  repository: ghcr.io/digicatapult/vitalam-ipfs
+  repository: ghcr.io/digicatapult/dscp-ipfs
   pullPolicy: IfNotPresent
-  tag: 'v1.2.12'
+  tag: 'v2.0.0'
 
 storage:
   storageClass: ""
   dataVolumeSize: 1  # in Gigabytes
 
-vitalamNode:
+dscpNode:
   enabled: true

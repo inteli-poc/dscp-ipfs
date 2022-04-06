@@ -1,0 +1,16 @@
+apiVersion: v2
+name: dscp-ipfs
+appVersion: '2.0.0'
+description: A Helm chart for dscp-ipfs
+version: '2.0.0'
+type: application
+dependencies:
+  - name: dscp-node
+    version: '3.0.0'
+    repository: https://digicatapult.github.io/dscp-node/
+    condition: dscpNode.enabled
+    alias: dscpNode
+maintainers:
+  - name: digicatapult
+    email: opensource@digicatapult.org.uk
+    url: www.digicatapult.org.uk

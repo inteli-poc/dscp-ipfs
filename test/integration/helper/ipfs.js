@@ -26,7 +26,7 @@ const waitForIpfsApi = async (port) => {
 
 const setupIPFS = (context) => {
   before(async function () {
-    context.ipfsDir = await fs.mkdtemp(path.join(os.tmpdir(), 'vitalam-ipfs-'))
+    context.ipfsDir = await fs.mkdtemp(path.join(os.tmpdir(), 'dscp-ipfs-'))
 
     spawnSync(IPFS_EXECUTABLE, ['init'], {
       env: {

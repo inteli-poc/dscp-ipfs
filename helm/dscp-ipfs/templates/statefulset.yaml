@@ -1,27 +1,27 @@
 
-{{ $fullname :=  include "vitalam-ipfs.fullname" . }}
+{{ $fullname :=  include "dscp-ipfs.fullname" . }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "vitalam-ipfs.fullname" . }}
+  name: {{ include "dscp-ipfs.fullname" . }}
   labels:
-    {{- include "vitalam-ipfs.labels" . | nindent 4 }}
+    {{- include "dscp-ipfs.labels" . | nindent 4 }}
 spec:
-  serviceName: {{ include "vitalam-ipfs.fullname" . }}
+  serviceName: {{ include "dscp-ipfs.fullname" . }}
   selector:
     matchLabels:
-      name: {{ include "vitalam-ipfs.fullname" . }}
+      name: {{ include "dscp-ipfs.fullname" . }}
   template:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
       labels:
-        name: {{ include "vitalam-ipfs.fullname" . }}
+        name: {{ include "dscp-ipfs.fullname" . }}
     spec:
-      {{- include "vitalam-ipfs.imagePullSecrets" . | indent 6 }}
+      {{- include "dscp-ipfs.imagePullSecrets" . | indent 6 }}
       initContainers:
-        - name: {{ include "vitalam-ipfs.initIpfsConfig.name" . }}
+        - name: {{ include "dscp-ipfs.initIpfsConfig.name" . }}
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
           env:
@@ -29,7 +29,7 @@ spec:
               value: {{ .Values.config.ipfsDataPath }}
           envFrom:
             - configMapRef:
-                name: {{ include "vitalam-ipfs.fullname" . }}-config
+                name: {{ include "dscp-ipfs.fullname" . }}-config
           command: ['/bin/sh', '-c', '-e', '-x']
           args:
             - |
@@ -46,7 +46,7 @@ spec:
             - mountPath: {{ .Values.config.ipfsDataPath }}
               name: ipfs-data
       containers:
-        - name: {{ include "vitalam-ipfs.fullname" . }}
+        - name: {{ include "dscp-ipfs.fullname" . }}
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
           command: [ './app/index.js' ]
@@ -54,17 +54,17 @@ spec:
             - name: PORT
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "vitalam-ipfs.fullname" . }}-config
+                  name: {{ include "dscp-ipfs.fullname" . }}-config
                   key: healthCheckPort
             - name: LOG_LEVEL
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "vitalam-ipfs.fullname" . }}-config
+                  name: {{ include "dscp-ipfs.fullname" . }}-config
                   key: logLevel
             - name: NODE_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "vitalam-ipfs.fullname" . }}-config
+                  name: {{ include "dscp-ipfs.fullname" . }}-config
                   key: nodeHost
             - name: NODE_PORT
               value: "9944"
@@ -72,18 +72,18 @@ spec:
             - name: IPFS_EXECUTABLE
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "vitalam-ipfs.fullname" . }}-config
+                  name: {{ include "dscp-ipfs.fullname" . }}-config
                   key: ipfsCommand
             {{- end }}
             - name: IPFS_ARGS
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "vitalam-ipfs.fullname" . }}-config
+                  name: {{ include "dscp-ipfs.fullname" . }}-config
                   key: ipfsArgs
             - name: IPFS_LOGGING
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "vitalam-ipfs.fullname" . }}-config
+                  name: {{ include "dscp-ipfs.fullname" . }}-config
                   key: ipfsLogLevel
             - name: IPFS_PATH
               value: {{ .Values.config.ipfsDataPath }}

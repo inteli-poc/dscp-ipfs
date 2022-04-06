@@ -5,7 +5,7 @@ const fsWithSync = require('fs')
 const { spawnSync } = require('child_process')
 
 // this needs to happen before environment variables are parsed. Hence done synchronously here
-const ipfsDir = fsWithSync.mkdtempSync(path.join(os.tmpdir(), 'vitalam-ipfs-'))
+const ipfsDir = fsWithSync.mkdtempSync(path.join(os.tmpdir(), 'dscp-ipfs-'))
 process.env.IPFS_PATH = ipfsDir
 
 const { IPFS_EXECUTABLE } = require('../../app/env')

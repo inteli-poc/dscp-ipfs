@@ -1,9 +1,9 @@
 image:
-  repository: 'vitalam-ipfs'
+  repository: 'dscp-ipfs'
   tag: 'latest'
   PullPolicy: Never
 
-vitalamNode:
+dscpNode:
   enabled: true
   node:
     chain: dev

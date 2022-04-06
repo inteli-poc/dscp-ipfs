@@ -1,7 +1,7 @@
 {{/*
 Create name to be used with deployment.
 */}}
-{{- define "vitalam-ipfs.fullname" -}}
+{{- define "dscp-ipfs.fullname" -}}
     {{- if .Values.fullnameOverride -}}
         {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" | lower -}}
     {{- else -}}
@@ -17,17 +17,17 @@ Create name to be used with deployment.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "vitalam-ipfs.chart" -}}
+{{- define "dscp-ipfs.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" | lower}}
 {{- end }}
 
-{{- define "vitalam-ipfs-node.fullname" -}}
-{{- if .Values.vitalamNode.enabled -}}
-{{- template "vitalam-node.fullname" .Subcharts.vitalamNode -}}
+{{- define "dscp-ipfs-node.fullname" -}}
+{{- if .Values.dscpNode.enabled -}}
+{{- template "dscp-node.fullname" .Subcharts.dscpNode -}}
 {{- end -}}
 {{- end -}}
 
-{{- define "vitalam-ipfs.ipfsApiPort" -}}
+{{- define "dscp-ipfs.ipfsApiPort" -}}
 {{- if .Values.config.ipfsApiPort -}}
 {{- .Values.config.ipfsApiPort | quote -}}
 {{- end -}}
@@ -36,16 +36,16 @@ Create chart name and version as used by the chart label.
 {{/*
 Selector labels
 */}}
-{{- define "vitalam-ipfs.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "vitalam-ipfs.fullname" . }}
+{{- define "dscp-ipfs.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "dscp-ipfs.fullname" . }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "vitalam-ipfs.labels" -}}
-helm.sh/chart: {{ include "vitalam-ipfs.chart" . }}
-{{ include "vitalam-ipfs.selectorLabels" . }}
+{{- define "dscp-ipfs.labels" -}}
+helm.sh/chart: {{ include "dscp-ipfs.chart" . }}
+{{ include "dscp-ipfs.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -55,7 +55,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 IPFS init container name
 */}}
-{{- define "vitalam-ipfs.initIpfsConfig.name" -}}
+{{- define "dscp-ipfs.initIpfsConfig.name" -}}
 {{- if .Values.fullnameOverride -}}
 {{- printf "%s-ipfs-config" .Values.fullnameOverride | lower | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -66,7 +66,7 @@ IPFS init container name
 {{/*
 Conditionally populate imagePullSecrets if present in the context
 */}}
-{{- define "vitalam-ipfs.imagePullSecrets" -}}
+{{- define "dscp-ipfs.imagePullSecrets" -}}
   {{- if (not (empty .Values.image.pullSecrets)) }}
 imagePullSecrets:
     {{- range .Values.image.pullSecrets }}

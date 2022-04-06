@@ -1,6 +1,6 @@
 {
-  "name": "@digicatapult/vitalam-ipfs",
-  "version": "1.2.12",
+  "name": "@digicatapult/dscp-ipfs",
+  "version": "2.0.0",
   "description": "Service for WASP",
   "main": "app/index.js",
   "scripts": {
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/digicatapult/vitalam-ipfs.git"
+    "url": "git+https://github.com/digicatapult/dscp-ipfs.git"
   },
   "engines": {
     "node": "16.x.x",
@@ -27,9 +27,9 @@
   "author": "Digital Catapult",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/digicatapult/vitalam-ipfs/issues"
+    "url": "https://github.com/digicatapult/dscp-ipfs/issues"
   },
-  "homepage": "https://github.com/digicatapult/vitalam-ipfs#readme",
+  "homepage": "https://github.com/digicatapult/dscp-ipfs#readme",
   "dependencies": {
     "@polkadot/api": "^5.9.1",
     "dotenv": "^8.2.0",

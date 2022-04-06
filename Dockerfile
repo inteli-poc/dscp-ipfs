@@ -30,7 +30,7 @@ ENV NPM_CONFIG_LOGLEVEL ${LOGLEVEL}
 
 COPY --from=ipfs_build /target /usr/local/bin
 
-WORKDIR /vitalam-ipfs
+WORKDIR /dscp-ipfs
 
 # Install base dependencies
 COPY . .

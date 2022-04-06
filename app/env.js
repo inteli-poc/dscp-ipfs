@@ -18,7 +18,7 @@ const validateArgs = envalid.makeValidator((input) => {
 const vars = envalid.cleanEnv(
   process.env,
   {
-    SERVICE_TYPE: envalid.str({ default: 'vitalam-ipfs'.toUpperCase().replace(/-/g, '_') }),
+    SERVICE_TYPE: envalid.str({ default: 'dscp-ipfs'.toUpperCase().replace(/-/g, '_') }),
     LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
     PORT: envalid.port({ default: 80, devDefault: 3000 }),
     NODE_HOST: envalid.host({ devDefault: 'localhost' }),
