@@ -42,7 +42,7 @@ class ServiceWatcher {
     return [this.#substrateStatus]
   }
 
-  start(self = this) {
+  getStatus(self = this) {
     return {
       [Symbol.asyncIterator]: async function*() {
         while(true) {
@@ -55,6 +55,13 @@ class ServiceWatcher {
           }
         }
       }
+    }
+  }
+
+  async start() {
+    console.log('wait wait wait....')
+    for await (const service of this.getStatus()) {
+      console.log({ service })
     }
   }
 }
