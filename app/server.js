@@ -18,7 +18,7 @@ async function createHttpServer() {
     },
   })
 
-  await app.use((req, res, next) => {
+  app.use((req, res, next) => {
     if (req.path !== '/health') requestLogger(req, res)
     next()
   })
@@ -47,26 +47,13 @@ async function startServer() {
     const { app, ipfs } = await createHttpServer()
 
     const server = await new Promise((resolve, reject) => {
-      let resolved = false
       const server = app.listen(PORT, (err) => {
-        if (err) {
-          if (!resolved) {
-            resolved = true
-            reject(err)
-          }
-        }
+        if (err) return reject(err)
         logger.info(`Listening on port ${PORT} `)
-        if (!resolved) {
-          resolved = true
-          resolve(server)
-        }
+        return resolve(server)
       })
-      server.on('error', (err) => {
-        if (!resolved) {
-          resolved = true
-          reject(err)
-        }
-      })
+
+      server.on('error', (err) => reject(err))
     })
 
     const closeHandler = (exitCode) => async () => {
