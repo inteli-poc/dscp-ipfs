@@ -22,10 +22,10 @@ class ServiceWatcher {
         runtime: {
           name: runtime.specName,
           versions: {
-            spec: runtime.specVersion.toNumber(),
-            impl: runtime.implVersion.toNumber(),
-            authoring: runtime.authoringVersion.toNumber(),
-            transaction: runtime.transactionVersion.toNumber(),
+            spec: runtime.specVersion, //.toNumber(),
+            impl: runtime.implVersion, //.toNumber(),
+            authoring: runtime.authoringVersion, //.toNumber(),
+            transaction: runtime.transactionVersion //.toNumber(),
           },
         },
       }
@@ -53,13 +53,18 @@ class ServiceWatcher {
               self.#delay(self.timeout, { status: 'status-down' }),
             ])
           }
+          break
         }
       }
     }
   }
 
+  // handle disconnect
+  // handle error
+  // methood for stopping (update while val)
+  // . might want to stop after certain errors or...
+
   async start() {
-    console.log('wait wait wait....')
     for await (const service of this.getStatus()) {
       console.log({ service })
     }
