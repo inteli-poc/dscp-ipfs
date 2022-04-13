@@ -7,9 +7,8 @@ const {
   PROCESS_IDENTIFIER_LENGTH,
 } = require('../env')
 
-
 const createNodeApi = async () => {
-  // moved this one inside the function as it was causing some troubles when defined globally, 
+  // moved this one inside the function as it was causing some troubles when defined globally,
   // might need to revert back TODO - confirm IPFS service
   const provider = new WsProvider(`ws://${NODE_HOST}:${NODE_PORT}`)
   const apiOptions = {

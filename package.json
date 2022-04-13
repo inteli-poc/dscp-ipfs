@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/dscp-ipfs",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Service for WASP",
   "main": "app/index.js",
   "scripts": {
@@ -39,6 +39,7 @@
     "pino-http": "^5.5.0"
   },
   "devDependencies": {
+    "babel-eslint": "^10.1.0",
     "chai": "^4.3.1",
     "delay": "^5.0.0",
     "depcheck": "^1.4.0",
