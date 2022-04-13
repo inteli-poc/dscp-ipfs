@@ -4,6 +4,8 @@ const {
 } = require('../env')
 
 class ServiceWatcher {
+  // taking helper functions can be improved by taking an object
+  // { name: <srv_name>, method: createNodeApi } and use in init()
   constructor(createNodeApi) {
     this.report = {}
     this.pollPeriod = SUBSTRATE_STATUS_POLL_PERIOD_MS
@@ -12,16 +14,16 @@ class ServiceWatcher {
   }
 
   // substrate polling function, each service should have their own
-  async #substratePoll({ createNodeApi }) {
+  async #substratePoll({ createNodeApi, name = 'substrate' }) {
     try {
       const api = (await createNodeApi())._api
       if (!await api.isReady) throw new Error('service is not ready')
       const [chain, runtime] = await Promise.all([api.runtimeChain, api.runtimeVersion])
     
       return {
-        name: 'substrate',
+        name,
         status: 'up', // TODO repl with constant/symbol 
-        detail: {
+        details: {
           chain,
           runtime: {
             name: runtime.specName,
@@ -35,7 +37,8 @@ class ServiceWatcher {
         }
       } 
     } catch(error) {
-      return this.update('substrate', { status: 'error', error })
+      // TODO logging
+      return { name, status: 'error', error }
     }
   }
   
@@ -72,10 +75,9 @@ class ServiceWatcher {
             yield Promise.race([
               service.poll(),
               this.delay(this.timeout, {
-                [service.name]: {
-                  status: 'down',
-                  error: `timeout, not response for ${this.timeout}ms`,
-                } // abstract to a helper method
+                name: service.name,
+                status: 'down',
+                error: new Error(`timeout, no response for ${this.timeout}ms`),
               }),
             ])
           }
@@ -90,10 +92,12 @@ class ServiceWatcher {
   // something to do for later as it was not very straight forward due to scope
 
   async start() {
-    for await (const service of this.getStatus()) {
-      const [[ name, details ]] = Object.entries(service)
+    const generator = this.getStatus()
+    for await (const service of generator) {
+      const { name, ...details } = service
       this.update(name, details)
     }
+    return Promise.resolve()
   }
 }
 
