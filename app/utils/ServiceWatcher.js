@@ -1,75 +1,100 @@
-const { createNodeApi } = require('../keyWatcher/api');
 const {
   SUBSTRATE_STATUS_POLL_PERIOD_MS,
   SUBSTRATE_STATUS_TIMEOUT_MS
 } = require('../env')
 
 class ServiceWatcher {
-  #delay(ms, result) {
+  constructor(createNodeApi) {
+    this.report = {}
+    this.pollPeriod = SUBSTRATE_STATUS_POLL_PERIOD_MS
+    this.timeout = SUBSTRATE_STATUS_TIMEOUT_MS
+    this.createNodeApi = createNodeApi
+  }
+
+  // substrate polling function, each service should have their own
+  async #substratePoll({ createNodeApi }) {
+    try {
+      const api = (await createNodeApi())._api
+      if (!await api.isReady) throw new Error('service is not ready')
+      const [chain, runtime] = await Promise.all([api.runtimeChain, api.runtimeVersion])
+    
+      return {
+        name: 'substrate',
+        status: 'up', // TODO repl with constant/symbol 
+        detail: {
+          chain,
+          runtime: {
+            name: runtime.specName,
+            versions: {
+              spec: runtime.specVersion, //.toNumber(), // tmp commenting out for stubbing
+              impl: runtime.implVersion, //.toNumber(),
+              authoring: runtime.authoringVersion, //.toNumber(),
+              transaction: runtime.transactionVersion //.toNumber(),
+            },
+          },
+        }
+      } 
+    } catch(error) {
+      return this.update('substrate', { status: 'error', error })
+    }
+  }
+  
+  delay(ms, result) {
     return new Promise(r => setTimeout(r, ms, result))
   }
 
-  async #substrateStatus() {
-    const api = (await createNodeApi())._api
-    await api.isReady // wait for api to be ready
-    const [chain, runtime] = await Promise.all([api.runtimeChain, api.runtimeVersion])
-  
-    return {
-      name: 'substrate',
-      status: 'status-up', // TODO repl with constant/symbol 
-      detail: {
-        chain,
-        runtime: {
-          name: runtime.specName,
-          versions: {
-            spec: runtime.specVersion, //.toNumber(),
-            impl: runtime.implVersion, //.toNumber(),
-            authoring: runtime.authoringVersion, //.toNumber(),
-            transaction: runtime.transactionVersion //.toNumber(),
-          },
-        },
-      }
-    } 
+
+  update(name, details) {
+    if (!name) return null // some handling
+    
+    this.report = {
+      ...this.report,
+      [name]: details,
+    }
   }
 
-  constructor() {
-    this.pollPeriod = SUBSTRATE_STATUS_POLL_PERIOD_MS
-    this.timeout = SUBSTRATE_STATUS_TIMEOUT_MS
-  }
-
+  // services that we would like to monitor should be added here
+  // with [name] and [poll] properties, more can be added for enrichment
   init() {
-    // return initial state for all services
-    return [this.#substrateStatus]
+    return [{
+      name: 'substrate',
+      poll: () => this.#substratePoll(this)
+    }]
   }
 
-  getStatus(self = this) {
+  // main generator function with infinate loop
+  getStatus() {
     return {
       [Symbol.asyncIterator]: async function*() {
         while(true) {
-          for (const getStatus of self.init()) {
-            await self.#delay(1000)
+          for (const service of this.init()) {
+            await this.delay(1000)
             yield Promise.race([
-              getStatus(), 
-              self.#delay(self.timeout, { status: 'status-down' }),
+              service.poll(),
+              this.delay(this.timeout, {
+                [service.name]: {
+                  status: 'down',
+                  error: `timeout, not response for ${this.timeout}ms`,
+                } // abstract to a helper method
+              }),
             ])
           }
           break
         }
-      }
+      }.bind(this)
     }
   }
 
-  // handle disconnect
-  // handle error
-  // methood for stopping (update while val)
+  // TODO methood for stopping (update while val)
   // . might want to stop after certain errors or...
+  // something to do for later as it was not very straight forward due to scope
 
   async start() {
     for await (const service of this.getStatus()) {
-      console.log({ service })
+      const [[ name, details ]] = Object.entries(service)
+      this.update(name, details)
     }
   }
 }
 
-// return a new instance of StatusWatcher
-module.exports = new ServiceWatcher()
+module.exports = ServiceWatcher
