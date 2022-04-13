@@ -167,6 +167,8 @@ jobs:
           time: '30s'
       - name: Run tests
         run: npm run test
+        env:
+          SUBSTRATE_STATUS_POLL_PERIOD_MS: 1000
 
   check-version:
     name: 'Check version'
