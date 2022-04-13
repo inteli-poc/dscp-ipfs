@@ -47,8 +47,8 @@ class ServiceWatcher {
   }
 
 
-  update(name, details) {
-    if (!name) return null // some handling
+  update(name, details = 'unknown') {
+    if (!name || typeof name !== 'string') return null // some handling
     
     this.report = {
       ...this.report,
@@ -57,7 +57,7 @@ class ServiceWatcher {
   }
 
   // services that we would like to monitor should be added here
-  // with [name] and [poll] properties, more can be added for enrichment
+  // with [name] and { poll, properties }, more can be added for enrichment
   init() {
     return [{
       name: 'substrate',
@@ -97,7 +97,7 @@ class ServiceWatcher {
       const { name, ...details } = service
       this.update(name, details)
     }
-    return Promise.resolve()
+    return Promise.resolve('done')
   }
 }
 
