@@ -1,33 +1,32 @@
 const { describe, it } = require('mocha')
 const { expect } = require('chai')
-const { stub } = require('sinon')
+const { spy } = require('sinon')
 
-const mockNodeApi = require('../__fixtures__/create-node-api-fn')
-const NodeApi = require('../../app/keyWatcher/api')
+const { available, unavailable, timeout } = require('../__fixtures__/create-node-api-fn')
 const ServiceWatcher = require('../../app/utils/ServiceWatcher')
 
-const createNodeApiStub = stub(NodeApi, 'createNodeApi')
+const connectionErrorMsg = 'Connection is not established, will retry during next polling cycle'
 
-describe('ServiceWatcher', () => {
+describe('ServiceWatcher', function () {
+  this.timeout(5000)
+
   let SW
   Number.prototype.toNumber = function () {
     return parseInt(this)
   }
   beforeEach(() => {
-    createNodeApiStub.callsFake(() => mockNodeApi.available)
-    SW = new ServiceWatcher(NodeApi.createNodeApi)
+    SW = new ServiceWatcher({ substrate: available })
   })
 
-  after(() => {
-    createNodeApiStub.restore()
+  afterEach(() => {
+    SW.stop()
   })
 
   describe('ServiceWatcher.delay', () => {
-    it('returns a desired result after delay', async () => {
-      const result = await SW.delay(10, { result: 'test' })
-      expect(result).to.deep.equal({
-        result: 'test',
-      })
+    it('rejects with TimeoutError if second argument is supplied', () => {
+      return SW.delay(10, { name: 'test' })
+        .then((res) => { throw new Error('was not supposed to succeed', res); })
+        .catch((err) => { expect(err.message).to.be.equal('Timeout error, no response from a service') })
     })
 
     it('delays and resolves a promise without a result', async () => {
@@ -57,6 +56,7 @@ describe('ServiceWatcher', () => {
     it('updates this.report with supplied details', () => {
       const details = { a: 'a', b: 'b', c: [] }
       SW.update('test', details)
+
       expect(SW.report).to.deep.equal({
         test: details,
       })
@@ -64,6 +64,7 @@ describe('ServiceWatcher', () => {
 
     it('sets details - unknown if second argumnent is not provided', () => {
       SW.update('test-no-details')
+
       expect(SW.report).to.deep.equal({
         'test-no-details': 'unknown',
       })
@@ -71,76 +72,159 @@ describe('ServiceWatcher', () => {
   })
 
   describe('ServiceWatcher.init', () => {
-    it('returns an array of objects with polling functions', () => {
-      const array = SW.init()
-      expect(array.length).to.equal(1)
-      expect(array[0]).to.include({
+    it('returns an array of services with polling functions', () => {
+      SW = new ServiceWatcher({ substrate: available })
+      expect(SW.services.length).to.equal(1)
+      expect(SW.services[0]).to.include({
         name: 'substrate',
       })
-      expect(array[0].poll).to.be.a('function')
+      expect(SW.services[0].poll).to.be.a('function')
+    })
+
+    it('does not include services that do not have a polling function', () => {
+      SW = new ServiceWatcher({ service1: {}, service2: {} })
+      expect(SW.services.length).to.equal(0)
     })
   })
 
-  describe('ServiceWatcher.substratePoll', () => {
+  describe('substrate - service checks', () => {
     beforeEach(() => {
-      createNodeApiStub.callsFake(() => mockNodeApi.available)
-      SW = new ServiceWatcher(NodeApi.createNodeApi)
+      SW = new ServiceWatcher({ substrate: available })
     })
 
-    describe('when invalid argument supplied', () => {
-      beforeEach(() => {
-        SW = new ServiceWatcher(() => 'some-function')
+    describe('when invalid argument supplied to constructor', () => {
+      beforeEach(async () => {
+        SW = new ServiceWatcher('some-test-data')
+        SW.start()
       })
 
-      it('catches error and reports', async () => {
-        await SW.start()
+      it('does not add to the services array', () => {
+        expect(SW.services).to.deep.equal([])
+      })
+      
+      it('does not create a new instance of generator', () => {
+        expect(SW.gen).to.be.undefined
+      })
 
-        expect(SW.report) // prettier-ignore
-          .to.have.property('substrate')
-          .that.includes.all.keys(['status', 'error'])
-          .that.deep.contain({ status: 'error' })
-        expect(SW.report.substrate.error.message).to.equal("Cannot read properties of undefined (reading 'isReady')")
+      it('sets stopped to true', () => {
+        expect(SW.stopped).to.equal(true)
+      })
+      
+      it('and has nothing to report', () => {
+        expect(SW.report).to.deep.equal({})
       })
     })
 
-    describe('when isReady is false', () => {
-      beforeEach(() => {
-        createNodeApiStub.callsFake(() => mockNodeApi.unavailable)
-        SW = new ServiceWatcher(NodeApi.createNodeApi)
+    describe('when service is unavailable', () => {
+      beforeEach(async () => {
+        SW = new ServiceWatcher({ substrate: unavailable })
+        spy(SW, 'update')
+        SW.start()
+        await SW.delay(2100)
       })
 
-      it('throws and updates this.report', async () => {
-        await SW.start()
+      afterEach(() => SW.stop())
 
+      it('reflects status in this.report object with error message', () => {
         expect(SW.report) // prettier-ignore
           .to.have.property('substrate')
           .that.includes.all.keys('status', 'error')
           .that.deep.contain({ status: 'error' })
-        expect(SW.report.substrate.error.message)
-          .to.equal('service is not ready') // prettier-ignore
+        expect(SW.report.substrate.error)
+          .to.have.all.keys('message', 'service')
+          .that.contains({
+            message: connectionErrorMsg
+          })
+      })
+
+      it('does not stop polling', () => {
+        expect(SW.stopped).to.equal(false)
+        expect(SW.update.callCount).to.equal(2)
+        expect(SW.update.getCall(0).args[0]).to.equal('substrate')
+        expect(SW.update.getCall(1).args[0]).to.equal('substrate')
+        expect(SW.update.getCall(1).args[1])
+          .to.have.property('error')
+          .that.have.all.keys('message', 'service')
+          .that.contains({
+            message: connectionErrorMsg,
+            service: 'substrate',
+          })
+      })
+    })
+
+    describe('and reports correctly when service status changes', () => {
+      beforeEach(async () => {
+        SW = new ServiceWatcher({ substrate: unavailable })
+        spy(SW, 'update')
+        SW.start()
+        await SW.delay(1000)
+        SW.services = [{
+          name: 'substrate',
+          poll: () => SW.substrate(available)
+        }]
+        await SW.delay(1000)
+      })
+
+      afterEach(() => {
+        SW.stop()
+      })
+
+      it('handles correctly unavalaible service', () => {
+        expect(SW.stopped).to.equal(false)
+        expect(SW.update.getCall(0).args[0]).to.equal('substrate')
+        expect(SW.update.getCall(0).args[1])
+          .to.include.all.keys('error', 'status')
+          .that.property('error').contains({
+            message: connectionErrorMsg,
+            service: 'substrate'
+          })
+      })
+      
+      it('updates this.report indicating that service is available', () => {
+        expect(SW.update.callCount).to.equal(2)
+        expect(SW.update.getCall(1).args).to.deep.equal([
+          'substrate',
+          {
+            status: 'up',
+            details: {
+              chain: 'Test',
+              runtime: {
+                name: 'dscp-node',
+                versions: {
+                  authoring: 1,
+                  impl: 1,
+                  spec: 300,
+                  transaction: 1,
+                },
+              },
+            },
+          }
+        ])
+        expect(SW.stopped).to.equal(false)
       })
     })
 
     describe('if it hits timeout first', () => {
       beforeEach(() => {
-        createNodeApiStub.callsFake(() => mockNodeApi.timeout)
-        SW = new ServiceWatcher(NodeApi.createNodeApi)
+        SW = new ServiceWatcher({ substrate: timeout })
       })
 
       it('resolves timeout error and reflects in this.report', async () => {
-        await SW.start()
+        await SW.start() // using await so it hits timeout
 
         expect(SW.report) // prettier-ignore
           .to.have.property('substrate')
           .that.includes.all.keys('status', 'error')
           .that.deep.contain({ status: 'down' })
         expect(SW.report.substrate.error.message) // prettier-ignore
-          .to.equal('timeout, no response for 2000ms')
+          .to.equal('Timeout error, no response from a service')
       }).timeout(5000)
     })
 
     it('persists substrate node status and details in this.report', async () => {
-      await SW.start()
+      SW.start()
+      await SW.delay(2000)
+      SW.stop()
 
       expect(SW.report) // prettier-ignore
         .to.have.property('substrate')
