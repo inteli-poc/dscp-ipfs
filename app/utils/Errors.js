@@ -3,7 +3,7 @@ class TimeoutError extends Error {
     super()
     this.name = this.constructor.name
     this.service = service.name
-    this.message = 'Timeout error, no response from a service' 
+    this.message = 'Timeout error, no response from a service'
   }
 }
 
@@ -11,7 +11,7 @@ class ConnectionError extends Error {
   constructor(service) {
     super()
     this.service = service.name
-    this.message = 'Connection is not established, will retry during next polling cycle' 
+    this.message = 'Connection is not established, will retry during next polling cycle'
   }
 }
 

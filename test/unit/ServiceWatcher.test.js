@@ -27,8 +27,12 @@ describe('ServiceWatcher', function () {
   describe('delay method', () => {
     it('rejects with TimeoutError if second argument is supplied', () => {
       return SW.delay(10, { name: 'test' })
-        .then((res) => { throw new Error('was not supposed to succeed', res); })
-        .catch((err) => { expect(err.message).to.be.equal('Timeout error, no response from a service') })
+        .then((res) => {
+          throw new Error('was not supposed to succeed', res)
+        })
+        .catch((err) => {
+          expect(err.message).to.be.equal('Timeout error, no response from a service')
+        })
     })
 
     it('delays and resolves a promise without a result', async () => {
@@ -100,7 +104,7 @@ describe('ServiceWatcher', function () {
     it('does not add to the services array', () => {
       expect(SW.services).to.deep.equal([])
     })
-    
+
     it('does not create a new instance of generator', () => {
       expect(SW.gen).to.be.undefined
     })
@@ -108,7 +112,7 @@ describe('ServiceWatcher', function () {
     it('sets stopped to true', () => {
       expect(SW.stopped).to.equal(true)
     })
-    
+
     it('and has nothing to report', () => {
       expect(SW.report).to.deep.equal({})
     })
@@ -120,22 +124,22 @@ describe('ServiceWatcher', function () {
       SW.start()
       await SW.delay(1000)
     })
-    
+
     // TODO more coverage for ipfs
     it('persist ipfs status and details in this.report object', () => {
       expect(SW.report) // prettier-ignore
-      .to.have.property('ipfs')
-      .that.includes.all.keys('status', 'details')
-      .that.deep.equal({
-        status: 'up',
-        details: {
-          killed: false,
-          pid: 10,
-          spawnfile: '/path/to/file/test/spawn.key',
-        },
-      })
+        .to.have.property('ipfs')
+        .that.includes.all.keys('status', 'details')
+        .that.deep.equal({
+          status: 'up',
+          details: {
+            killed: false,
+            pid: 10,
+            spawnfile: '/path/to/file/test/spawn.key',
+          },
+        })
     })
- })
+  })
 
   describe('substrate - service checks', () => {
     beforeEach(() => {
@@ -157,10 +161,10 @@ describe('ServiceWatcher', function () {
           .to.have.property('substrate')
           .that.includes.all.keys('status', 'error')
           .that.deep.contain({ status: 'error' })
-        expect(SW.report.substrate.error)
+        expect(SW.report.substrate.error) // prettier-ignore
           .to.have.all.keys('message', 'service')
           .that.contains({
-            message: connectionErrorMsg
+            message: connectionErrorMsg,
           })
       })
 
@@ -185,10 +189,12 @@ describe('ServiceWatcher', function () {
         spy(SW, 'update')
         SW.start()
         await SW.delay(1000)
-        SW.services = [{
-          name: 'substrate',
-          poll: () => SW.substrate(substrate.available)
-        }]
+        SW.services = [
+          {
+            name: 'substrate',
+            poll: () => SW.substrate(substrate.available),
+          },
+        ]
         await SW.delay(1000)
       })
 
@@ -199,14 +205,15 @@ describe('ServiceWatcher', function () {
       it('handles correctly unavalaible service', () => {
         expect(SW.stopped).to.equal(false)
         expect(SW.update.getCall(0).args[0]).to.equal('substrate')
-        expect(SW.update.getCall(0).args[1])
+        expect(SW.update.getCall(0).args[1]) // prettier-ignore
           .to.include.all.keys('error', 'status')
-          .that.property('error').contains({
+          .that.property('error')
+          .contains({
             message: connectionErrorMsg,
-            service: 'substrate'
+            service: 'substrate',
           })
       })
-      
+
       it('updates this.report indicating that service is available', () => {
         expect(SW.update.callCount).to.equal(2)
         expect(SW.update.getCall(1).args).to.deep.equal([
@@ -225,7 +232,7 @@ describe('ServiceWatcher', function () {
                 },
               },
             },
-          }
+          },
         ])
         expect(SW.stopped).to.equal(false)
       })
@@ -243,7 +250,7 @@ describe('ServiceWatcher', function () {
       })
 
       it('creates an instace of timeout error', () => {
-        const { error } = SW.report.substrate;
+        const { error } = SW.report.substrate
 
         expect(error).to.be.a.instanceOf(TimeoutError)
         expect(error.name).to.equal('TimeoutError')
@@ -271,7 +278,7 @@ describe('ServiceWatcher', function () {
         .to.have.property('substrate')
         .that.includes.all.keys('status', 'details')
         .that.deep.equal({
-          status: 'up',
+          status: 'up', // TODO implement snapshot assertation for mocha
           details: {
             chain: 'Test',
             runtime: {

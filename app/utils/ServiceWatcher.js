@@ -15,7 +15,7 @@ class ServiceWatcher {
 
   async ipfs(api, name = 'ipfs') {
     try {
-      if (!api || !api.pid)  throw new ConnectionError({ name })
+      if (!api || !api.pid) throw new ConnectionError({ name })
       const { spawnfile, pid, killed } = api
 
       return {
@@ -25,7 +25,7 @@ class ServiceWatcher {
           spawnfile,
           pid,
           killed,
-        }
+        },
       }
     } catch (error) {
       return { name, status: 'error', error }
@@ -62,11 +62,7 @@ class ServiceWatcher {
 
   delay(ms, service = false) {
     return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        return service 
-          ? reject(new TimeoutError(service))
-          : resolve()
-      }, ms)
+      setTimeout(() => (service ? reject(new TimeoutError(service)) : resolve()), ms)
     })
   }
 
@@ -83,16 +79,18 @@ class ServiceWatcher {
   // services that we would like to monitor should be added here
   // with [name] and { poll, properties }, more can be added for enrichment
   #init(services) {
-    return Object.keys(services).map((service) => {
-      if (!this[service]) {
-        // TODO log that there are no polling functions for this service
-        return null
-      }
-      return {
-        name: service,
-        poll: () => this[service](services[service])
-      }
-    }).filter(Boolean)
+    return Object.keys(services)
+      .map((service) => {
+        if (!this[service]) {
+          // TODO log that there are no polling functions for this service
+          return null
+        }
+        return {
+          name: service,
+          poll: () => this[service](services[service]),
+        }
+      })
+      .filter(Boolean)
   }
 
   // main generator function with infinate loop
@@ -104,10 +102,7 @@ class ServiceWatcher {
           while (true) {
             await self.delay(self.#pollPeriod)
             for (const service of self.services) {
-              yield Promise.race([
-                service.poll(),
-                self.delay(self.#timeout, service)
-              ])
+              yield Promise.race([service.poll(), self.delay(self.#timeout, service)])
             }
           }
         } catch (error) {
@@ -124,12 +119,12 @@ class ServiceWatcher {
   stop() {
     // TODO return log.info and return an error
     // take some args for error types
-    return this.stopped = true
+    this.stopped = true
   }
 
   // TODO methood for stopping (update while val)
   async start() {
-    if (this.services.length < 1) return this.stop() 
+    if (this.services.length < 1) return this.stop()
     this.gen = this.generator()
     for await (const service of this.gen) {
       const { name, ...details } = service

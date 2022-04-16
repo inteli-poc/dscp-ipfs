@@ -28,8 +28,7 @@ async function createHttpServer() {
   })
 
   app.get('/health', async (req, res) => {
-    const statusCode = Object.values(sw.report)
-      .some((srv) => ['down', 'error'].includes(srv.status)) ? 503 : 200
+    const statusCode = Object.values(sw.report).some((srv) => ['down', 'error'].includes(srv.status)) ? 503 : 200
 
     res.status(statusCode).send(sw.report)
   })
@@ -55,7 +54,6 @@ async function startServer() {
     const server = await new Promise((resolve, reject) => {
       const server = app.listen(PORT, (err) => {
         if (err) return reject(err)
-        
         logger.info(`Listening on port ${PORT} `)
         resolve(server)
         sw.start()
