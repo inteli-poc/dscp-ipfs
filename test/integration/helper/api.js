@@ -33,7 +33,6 @@ const setSwarmKey = async (swarmKey) => {
       })
       .then((res) => {
         unsub = res
-        SW.start()
       })
   })
 }

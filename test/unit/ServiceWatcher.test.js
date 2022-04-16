@@ -2,8 +2,10 @@ const { describe, it } = require('mocha')
 const { expect } = require('chai')
 const { spy } = require('sinon')
 
-const { available, unavailable, timeout } = require('../__fixtures__/create-node-api-fn')
+const substrate = require('../__fixtures__/substrate-node-api-fn')
+const ipfs = require('../__fixtures__/ipfs-api-fn')
 const ServiceWatcher = require('../../app/utils/ServiceWatcher')
+const { TimeoutError } = require('../../app/utils/Errors')
 
 const connectionErrorMsg = 'Connection is not established, will retry during next polling cycle'
 
@@ -15,14 +17,14 @@ describe('ServiceWatcher', function () {
     return parseInt(this)
   }
   beforeEach(() => {
-    SW = new ServiceWatcher({ substrate: available })
+    SW = new ServiceWatcher({ substrate: substrate.available })
   })
 
   afterEach(() => {
     SW.stop()
   })
 
-  describe('ServiceWatcher.delay', () => {
+  describe('delay method', () => {
     it('rejects with TimeoutError if second argument is supplied', () => {
       return SW.delay(10, { name: 'test' })
         .then((res) => { throw new Error('was not supposed to succeed', res); })
@@ -35,7 +37,7 @@ describe('ServiceWatcher', function () {
     })
   })
 
-  describe('ServiceWatcher.update', () => {
+  describe('update method', () => {
     describe('if invalid arguments provided', () => {
       const invalidTypes = [[1, 2], 1, {}]
 
@@ -71,9 +73,11 @@ describe('ServiceWatcher', function () {
     })
   })
 
-  describe('ServiceWatcher.init', () => {
+  // TODO teests for ServiceWatcher.stop()
+
+  describe('init method', () => {
     it('returns an array of services with polling functions', () => {
-      SW = new ServiceWatcher({ substrate: available })
+      SW = new ServiceWatcher({ substrate: substrate.available })
       expect(SW.services.length).to.equal(1)
       expect(SW.services[0]).to.include({
         name: 'substrate',
@@ -87,37 +91,60 @@ describe('ServiceWatcher', function () {
     })
   })
 
-  describe('substrate - service checks', () => {
-    beforeEach(() => {
-      SW = new ServiceWatcher({ substrate: available })
+  describe('if invalid argument supplied to constructor', () => {
+    beforeEach(async () => {
+      SW = new ServiceWatcher('some-test-data')
+      SW.start()
     })
 
-    describe('when invalid argument supplied to constructor', () => {
-      beforeEach(async () => {
-        SW = new ServiceWatcher('some-test-data')
-        SW.start()
-      })
+    it('does not add to the services array', () => {
+      expect(SW.services).to.deep.equal([])
+    })
+    
+    it('does not create a new instance of generator', () => {
+      expect(SW.gen).to.be.undefined
+    })
 
-      it('does not add to the services array', () => {
-        expect(SW.services).to.deep.equal([])
-      })
-      
-      it('does not create a new instance of generator', () => {
-        expect(SW.gen).to.be.undefined
-      })
+    it('sets stopped to true', () => {
+      expect(SW.stopped).to.equal(true)
+    })
+    
+    it('and has nothing to report', () => {
+      expect(SW.report).to.deep.equal({})
+    })
+  })
 
-      it('sets stopped to true', () => {
-        expect(SW.stopped).to.equal(true)
+  describe('ipfs - service check', () => {
+    beforeEach(async () => {
+      SW = new ServiceWatcher({ ipfs: ipfs.available })
+      SW.start()
+      await SW.delay(1000)
+    })
+    
+    // TODO more coverage for ipfs
+    it('persist ipfs status and details in this.report object', () => {
+      expect(SW.report) // prettier-ignore
+      .to.have.property('ipfs')
+      .that.includes.all.keys('status', 'details')
+      .that.deep.equal({
+        status: 'up',
+        details: {
+          killed: false,
+          pid: 10,
+          spawnfile: '/path/to/file/test/spawn.key',
+        },
       })
-      
-      it('and has nothing to report', () => {
-        expect(SW.report).to.deep.equal({})
-      })
+    })
+ })
+
+  describe('substrate - service checks', () => {
+    beforeEach(() => {
+      SW = new ServiceWatcher({ substrate: substrate.available })
     })
 
     describe('when service is unavailable', () => {
       beforeEach(async () => {
-        SW = new ServiceWatcher({ substrate: unavailable })
+        SW = new ServiceWatcher({ substrate: substrate.unavailable })
         spy(SW, 'update')
         SW.start()
         await SW.delay(2100)
@@ -154,13 +181,13 @@ describe('ServiceWatcher', function () {
 
     describe('and reports correctly when service status changes', () => {
       beforeEach(async () => {
-        SW = new ServiceWatcher({ substrate: unavailable })
+        SW = new ServiceWatcher({ substrate: substrate.unavailable })
         spy(SW, 'update')
         SW.start()
         await SW.delay(1000)
         SW.services = [{
           name: 'substrate',
-          poll: () => SW.substrate(available)
+          poll: () => SW.substrate(substrate.available)
         }]
         await SW.delay(1000)
       })
@@ -205,20 +232,34 @@ describe('ServiceWatcher', function () {
     })
 
     describe('if it hits timeout first', () => {
-      beforeEach(() => {
-        SW = new ServiceWatcher({ substrate: timeout })
+      beforeEach(async () => {
+        SW = new ServiceWatcher({ substrate: substrate.timeout })
+        SW.start() // using await so it hits timeout
+        await SW.delay(3000)
       })
 
-      it('resolves timeout error and reflects in this.report', async () => {
-        await SW.start() // using await so it hits timeout
+      afterEach(() => {
+        SW.stop()
+      })
 
+      it('creates an instace of timeout error', () => {
+        const { error } = SW.report.substrate;
+
+        expect(error).to.be.a.instanceOf(TimeoutError)
+        expect(error.name).to.equal('TimeoutError')
+        expect(error.message).to.equal('Timeout error, no response from a service')
+      })
+
+      it('updates this.report with new status and error object', () => {
         expect(SW.report) // prettier-ignore
           .to.have.property('substrate')
           .that.includes.all.keys('status', 'error')
           .that.deep.contain({ status: 'down' })
-        expect(SW.report.substrate.error.message) // prettier-ignore
-          .to.equal('Timeout error, no response from a service')
-      }).timeout(5000)
+      })
+
+      it('continues polling', () => {
+        expect(SW.stopped).to.equal(false)
+      })
     })
 
     it('persists substrate node status and details in this.report', async () => {
@@ -244,6 +285,6 @@ describe('ServiceWatcher', function () {
             },
           },
         })
-    }).timeout(5000)
+    })
   })
 })
