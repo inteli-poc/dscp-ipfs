@@ -1,23 +1,57 @@
 const { SUBSTRATE_STATUS_POLL_PERIOD_MS, SUBSTRATE_STATUS_TIMEOUT_MS } = require('../env')
 
+class TimeoutError extends Error {
+  constructor(service) {
+    super()
+    this.service = service.name
+    this.message = 'Timeout error, no response from a service' 
+  }
+}
+
+class ConnectionError extends Error {
+  constructor(service) {
+    super()
+    this.service = service.name
+    this.message = 'Connection is not established, will retry during next polling cycle' 
+  }
+}
+
 class ServiceWatcher {
   #pollPeriod
   #timeout
-  #createNodeApi
-  // taking helper functions can be improved by taking an object
-  // { name: <srv_name>, method: createNodeApi } and use in init()
-  constructor(createNodeApi) {
+
+  constructor(apis) {
     this.report = {}
-    this.#createNodeApi = createNodeApi
+    this.stopped = false
     this.#pollPeriod = SUBSTRATE_STATUS_POLL_PERIOD_MS
     this.#timeout = SUBSTRATE_STATUS_TIMEOUT_MS
+    this.services = this.#init(apis)
+  }
+
+  async ipfs(api, name = 'ipfs') {
+    if (!api.ipfs || !api.ipfs.pid) return {
+      name,
+      status: 'error',
+      error: 'service has not started'
+    }
+    const { spawnfile, pid, killed } = api.ipfs
+
+    return {
+      name,
+      status: 'up',
+      details: {
+        ...api,
+        spawnfile,
+        pid,
+        killed,
+      }
+    }
   }
 
   // substrate polling function, each service should have their own
-  async #substratePoll(createNodeApi, name = 'substrate') {
+  async substrate(api, name = 'substrate') {
     try {
-      const api = (await createNodeApi())._api
-      if (!(await api.isReady)) throw new Error('service is not ready')
+      if (!(await api.isConnected)) throw new ConnectionError({ name })
       const [chain, runtime] = await Promise.all([api.runtimeChain, api.runtimeVersion])
 
       return {
@@ -42,12 +76,19 @@ class ServiceWatcher {
     }
   }
 
-  delay(ms, result) {
-    return new Promise((r) => setTimeout(r, ms, result))
+  delay(ms, service = false) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        return service 
+          ? reject(new TimeoutError(service))
+          : resolve()
+      }, ms)
+    })
   }
 
   update(name, details = 'unknown') {
     if (!name || typeof name !== 'string') return null // some handling
+    if (this.report[name] === details) return null // no need to update
 
     this.report = {
       ...this.report,
@@ -57,45 +98,59 @@ class ServiceWatcher {
 
   // services that we would like to monitor should be added here
   // with [name] and { poll, properties }, more can be added for enrichment
-  init() {
-    return [
-      {
-        name: 'substrate',
-        poll: () => this.#substratePoll(this.#createNodeApi),
-      },
-    ]
+  #init(services) {
+    return Object.keys(services).map((service) => {
+      if (!this[service]) {
+        // TODO log that there are no polling functions for this service
+        return null
+      }
+      return {
+        name: service,
+        poll: () => this[service](services[service])
+      }
+    }).filter(Boolean)
   }
 
   // main generator function with infinate loop
   generator(self = this) {
+    this.stopped = false
     return {
       [Symbol.asyncIterator]: async function* () {
-        while (true) {
-          for (const service of self.init()) {
+        try {
+          while (true) {
             await self.delay(self.#pollPeriod)
-            yield Promise.race([
-              service.poll(),
-              self.delay(self.#timeout, {
-                name: service.name,
-                status: 'down',
-                error: new Error(`timeout, no response for ${self.#timeout}ms`),
-              }),
-            ])
+            for (const service of self.services) {
+              yield Promise.race([
+                service.poll(),
+                self.delay(self.#timeout, service)
+              ])
+            }
           }
-          break
+        } catch (error) {
+          yield {
+            status: 'down',
+            name: error.service,
+            error,
+          }
         }
       },
     }
   }
 
+  stop() {
+    // TODO return log.info and return an error
+    // take some args for error types
+    return this.stopped = true
+  }
+
   // TODO methood for stopping (update while val)
-  // . might want to stop after certain errors or...
-  // something to do for later as it was not very straight forward due to scope
   async start() {
-    const gen = this.generator()
-    for await (const service of gen) {
+    if (this.services.length < 1) return this.stop() 
+    this.gen = this.generator()
+    for await (const service of this.gen) {
       const { name, ...details } = service
       this.update(name, details)
+      if (this.stopped) break // TODO return log.info('watcher has stopped')
     }
     return 'done'
   }
