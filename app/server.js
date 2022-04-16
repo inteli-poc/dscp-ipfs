@@ -20,7 +20,7 @@ async function createHttpServer() {
   })
 
   // might be a good idea to have a dedicagted method for adding more api objects
-  const sw = new ServiceWatcher({ nodeApi: nodeApi._api, ipfsApi: ipfs })
+  const sw = new ServiceWatcher({ substrate: nodeApi._api, ipfs })
 
   app.use((req, res, next) => {
     if (req.path !== '/health') requestLogger(req, res)
@@ -31,12 +31,7 @@ async function createHttpServer() {
     const statusCode = Object.values(sw.report)
       .some((srv) => ['down', 'error'].includes(srv.status)) ? 503 : 200
 
-    res.status(statusCode).send({ 
-      self: {
-        status: 'up',
-        ...sw.report
-      },
-    })
+    res.status(statusCode).send(sw.report)
   })
 
   // Sorry - app.use checks arity
@@ -61,9 +56,9 @@ async function startServer() {
       const server = app.listen(PORT, (err) => {
         if (err) return reject(err)
         
-        sw.start()// include actual IPFS stats as well
         logger.info(`Listening on port ${PORT} `)
         resolve(server)
+        sw.start()
       })
 
       server.on('error', (err) => reject(err))

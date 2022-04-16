@@ -1,20 +1,5 @@
+const { ConnectionError, TimeoutError } = require('./Errors')
 const { SUBSTRATE_STATUS_POLL_PERIOD_MS, SUBSTRATE_STATUS_TIMEOUT_MS } = require('../env')
-
-class TimeoutError extends Error {
-  constructor(service) {
-    super()
-    this.service = service.name
-    this.message = 'Timeout error, no response from a service' 
-  }
-}
-
-class ConnectionError extends Error {
-  constructor(service) {
-    super()
-    this.service = service.name
-    this.message = 'Connection is not established, will retry during next polling cycle' 
-  }
-}
 
 class ServiceWatcher {
   #pollPeriod
@@ -29,22 +14,21 @@ class ServiceWatcher {
   }
 
   async ipfs(api, name = 'ipfs') {
-    if (!api.ipfs || !api.ipfs.pid) return {
-      name,
-      status: 'error',
-      error: 'service has not started'
-    }
-    const { spawnfile, pid, killed } = api.ipfs
+    try {
+      if (!api || !api.pid)  throw new ConnectionError({ name })
+      const { spawnfile, pid, killed } = api
 
-    return {
-      name,
-      status: 'up',
-      details: {
-        ...api,
-        spawnfile,
-        pid,
-        killed,
+      return {
+        name,
+        status: 'up',
+        details: {
+          spawnfile,
+          pid,
+          killed,
+        }
       }
+    } catch (error) {
+      return { name, status: 'error', error }
     }
   }
 
@@ -71,7 +55,7 @@ class ServiceWatcher {
         },
       }
     } catch (error) {
-      // TODO logging
+      // TODO logging and/or any other handling
       return { name, status: 'error', error }
     }
   }
