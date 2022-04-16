@@ -5,5 +5,6 @@ module.exports = {
   setupKeyWatcher: async ({ onUpdate }) => {
     const api = await createNodeApi()
     await setupKeyWatcher(api)({ onUpdate })
+    return api
   },
 }

@@ -2,6 +2,20 @@
 
 Manages a go-ipfs instance maintaining the private network swarm key based on the value from a `dscp-node` instance.
 
+## Local development
+> install dependencies
+```sh
+npm i
+```
+> start substrate node using docker-compose
+```sh
+docker-compose up -d // -d for silent
+```
+> start ipfs nodejs wrapper
+```sh
+npm run dev
+```
+
 ## Environment Variables
 
 `dscp-ipfs` is configured primarily using environment variables as follows:

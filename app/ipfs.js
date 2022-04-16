@@ -51,6 +51,7 @@ async function setupIpfs() {
       })
 
       ipfs.on('close', unexpectedCloseListener)
+      that.ipfs = ipfs
     },
     stop: async () => {
       logger.info('Stopping IPFS')

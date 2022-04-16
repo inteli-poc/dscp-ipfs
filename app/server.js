@@ -5,18 +5,22 @@ const { PORT } = require('./env')
 const logger = require('./logger')
 const { setupKeyWatcher } = require('./keyWatcher')
 const { setupIpfs } = require('./ipfs')
+const ServiceWatcher = require('./utils/ServiceWatcher')
 
 async function createHttpServer() {
   const app = express()
   const requestLogger = pinoHttp({ logger })
   const ipfs = await setupIpfs()
 
-  await setupKeyWatcher({
+  const nodeApi = await setupKeyWatcher({
     onUpdate: async (value) => {
       await ipfs.stop()
       await ipfs.start({ swarmKey: value })
     },
   })
+
+  // might be a good idea to have a dedicagted method for adding more api objects
+  const sw = new ServiceWatcher({ nodeApi: nodeApi._api, ipfsApi: ipfs })
 
   app.use((req, res, next) => {
     if (req.path !== '/health') requestLogger(req, res)
@@ -24,7 +28,15 @@ async function createHttpServer() {
   })
 
   app.get('/health', async (req, res) => {
-    res.status(200).send({ status: 'ok' })
+    const statusCode = Object.values(sw.report)
+      .some((srv) => ['down', 'error'].includes(srv.status)) ? 503 : 200
+
+    res.status(statusCode).send({ 
+      self: {
+        status: 'up',
+        ...sw.report
+      },
+    })
   })
 
   // Sorry - app.use checks arity
@@ -38,19 +50,20 @@ async function createHttpServer() {
     }
   })
 
-  return { app, ipfs }
+  return { app, ipfs, sw }
 }
 
 /* istanbul ignore next */
 async function startServer() {
   try {
-    const { app, ipfs } = await createHttpServer()
-
+    const { app, ipfs, sw } = await createHttpServer()
     const server = await new Promise((resolve, reject) => {
       const server = app.listen(PORT, (err) => {
         if (err) return reject(err)
+        
+        sw.start()// include actual IPFS stats as well
         logger.info(`Listening on port ${PORT} `)
-        return resolve(server)
+        resolve(server)
       })
 
       server.on('error', (err) => reject(err))
