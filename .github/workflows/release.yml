@@ -246,6 +246,8 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
           file: ./Dockerfile
+          secrets: |
+            github=${{ secrets.GITHUB_TOKEN }}
           platforms: linux/amd64
           tags: |
             ghcr.io/${{ needs.preconditions.outputs.org_name }}/${{ needs.preconditions.outputs.repo_name }}:${{ needs.check-version.outputs.version }}
