@@ -1,5 +1,5 @@
 const { TimeoutError } = require('./Errors')
-const { SUBSTRATE_STATUS_POLL_PERIOD_MS, SUBSTRATE_STATUS_TIMEOUT_MS } = require('../env')
+const { HEALTHCHECK_POLL_PERIOD_MS, HEALTHCHECK_TIMEOUT_MS } = require('../env')
 
 class ServiceWatcher {
   #pollPeriod
@@ -8,8 +8,8 @@ class ServiceWatcher {
   constructor(apis) {
     this.report = {}
     this.stopped = false
-    this.#pollPeriod = SUBSTRATE_STATUS_POLL_PERIOD_MS
-    this.#timeout = SUBSTRATE_STATUS_TIMEOUT_MS
+    this.#pollPeriod = HEALTHCHECK_POLL_PERIOD_MS
+    this.#timeout = HEALTHCHECK_TIMEOUT_MS
     this.services = this.#init(apis)
   }
 
