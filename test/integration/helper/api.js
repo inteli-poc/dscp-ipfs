@@ -1,5 +1,3 @@
-const { Keyring } = require('@polkadot/api')
-
 const { createNodeApi } = require('../../../app/keyWatcher/api')
 
 let nodeApi = null
@@ -14,8 +12,7 @@ const getSwarmKey = async () => {
 const setSwarmKey = async (swarmKey) => {
   const api = nodeApi._api
   await api.isReady
-  const keyring = new Keyring({ type: 'sr25519' })
-  const sudo = keyring.addFromUri('//Alice')
+  const sudo = nodeApi._keyring.addFromUri('//Alice')
 
   return new Promise((resolve) => {
     let unsub = null

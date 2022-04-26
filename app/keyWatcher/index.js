@@ -12,7 +12,7 @@ module.exports = {
     try {
       if (!(await api.isConnected)) throw new ConnectionError({ name })
       const [chain, runtime] = await Promise.all([api.runtimeChain, api.runtimeVersion])
-  
+
       return {
         name,
         status: 'up',
@@ -32,5 +32,5 @@ module.exports = {
     } catch (error) {
       return { name, status: 'error', error }
     }
-  }
+  },
 }

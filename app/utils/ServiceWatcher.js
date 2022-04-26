@@ -1,4 +1,4 @@
-const { ConnectionError, TimeoutError } = require('./Errors')
+const { TimeoutError } = require('./Errors')
 const { SUBSTRATE_STATUS_POLL_PERIOD_MS, SUBSTRATE_STATUS_TIMEOUT_MS } = require('../env')
 
 class ServiceWatcher {
@@ -35,11 +35,12 @@ class ServiceWatcher {
     return Object.keys(services)
       .map((service) => {
         const { healthCheck, ...api } = services[service]
-        
-        return healthCheck ? {
-          name: service,
-          poll: () => healthCheck(api, service),
-        } : null
+        return healthCheck
+          ? {
+              name: service,
+              poll: () => healthCheck(api, service),
+            }
+          : null
       })
       .filter(Boolean)
   }
@@ -68,8 +69,6 @@ class ServiceWatcher {
   }
 
   stop() {
-    // TODO return log.info and return an error
-    // take some args for error types
     this.stopped = true
   }
 
@@ -80,7 +79,8 @@ class ServiceWatcher {
     for await (const service of this.gen) {
       const { name, ...details } = service
       this.update(name, details)
-      if (this.stopped) break // TODO return log.info('watcher has stopped')
+      // TODO refactor this.stop() method
+      if (this.stopped) break
     }
     return 'done'
   }

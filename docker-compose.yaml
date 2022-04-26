@@ -1,7 +1,7 @@
 version: '3'
 services:
   dscp-node:
-    image: ghcr.io/digicatapult/dscp-node:v3.0.0
+    image: ghcr.io/digicatapult/dscp-node:latest
     command:
       --base-path /data/
       --dev

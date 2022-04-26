@@ -1,6 +1,7 @@
 const { spawn } = require('child_process')
 const EventEmitter = require('events')
 
+const { ConnectionError } = require('./utils/Errors')
 const { IPFS_PATH, IPFS_EXECUTABLE, IPFS_ARGS, IPFS_LOG_LEVEL } = require('./env')
 const logger = require('./logger')
 
