@@ -12,33 +12,32 @@ describe('health checks', function () {
     context.body = await context.response.json()
   })
 
-  describe('if any of the services status is down or error', () => {
-    it('should return 503', function () {
-      expect(context.response.status).to.equal(503)
-    })
+  it('should returns 200', function () {
+    expect(context.response.status).to.equal(200)
+  })
 
-    it('and report contains IPFS status', function () {
-      expect(context.body)
-        .to.have.property('ipfs')
-        .that.deep.equal({
-          error: {
-            message: 'Connection is not established, will retry during next polling cycle',
-            service: 'ipfs',
-          },
-          status: 'error',
-        })
-    })
+  it('and report contains IPFS status', function () {
+    expect(context.body)
+      .to.have.property('ipfs')
+      .that.deep.equal({
+        error: {
+          message: 'Connection is not established, will retry during next polling cycle',
+          service: 'ipfs',
+        },
+        status: 'error',
+      })
+  })
 
-    it('also contains substrate node status', () => {
-      expect(context.body)
-        .to.have.property('substrate')
-        .that.deep.equal({
-          error: {
-            message: 'Connection is not established, will retry during next polling cycle',
-            service: 'substrate',
-          },
-          status: 'error',
-        })
-    })
+  it('also contains substrate node status', () => {
+    expect(context.body)
+      .to.have.property('substrate')
+      .to.have.property('ipfs')
+      .that.deep.equal({
+        error: {
+          message: 'Connection is not established, will retry during next polling cycle',
+          service: 'substrate',
+        },
+        status: 'error',
+      })
   })
 })
