@@ -176,8 +176,8 @@ jobs:
       - name: Run tests
         run: npm run test
         env:
-          SUBSTRATE_STATUS_POLL_PERIOD_MS: 1000
-          SUBSTRATE_STATUS_TIMEOUT_MS: 1000
+          HEALTHCHECK_POLL_PERIOD_MS: 1000
+          HEALTHCHECK_TIMEOUT_MS: 1000
 
   check-version:
     name: 'Check version'
