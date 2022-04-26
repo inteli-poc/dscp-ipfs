@@ -33,8 +33,8 @@ const vars = envalid.cleanEnv(
     METADATA_KEY_LENGTH: envalid.num({ default: 32 }),
     METADATA_VALUE_LITERAL_LENGTH: envalid.num({ default: 32 }),
     PROCESS_IDENTIFIER_LENGTH: envalid.num({ default: 32 }),
-    HEALTHCHECK_POLL_PERIOD_MS: envalid.num({ default: 30 * 1000 }),
-    HEALTHCHECK_TIMEOUT_MS: envalid.num({ default: 2 * 1000 }),
+    HEALTHCHECK_POLL_PERIOD_MS: envalid.num({ default: 30 * 1000, devDefault: 1000 }),
+    HEALTHCHECK_TIMEOUT_MS: envalid.num({ default: 2 * 1000, devDefault: 1000 }),
   },
   {
     strict: true,

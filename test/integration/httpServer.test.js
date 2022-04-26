@@ -33,19 +33,11 @@ describe('health checks', function () {
       expect(context.body)
         .to.have.property('substrate')
         .that.deep.equal({
-          status: 'up',
-          details: {
-            chain: 'Development',
-            runtime: {
-              name: 'dscp-node',
-              versions: {
-                authoring: 1,
-                impl: 1,
-                spec: 300,
-                transaction: 1,
-              },
-            },
+          error: {
+            message: 'Connection is not established, will retry during next polling cycle',
+            service: 'substrate',
           },
+          status: 'error',
         })
     })
   })
