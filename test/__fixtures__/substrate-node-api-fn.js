@@ -1,15 +1,20 @@
+const { nodeHealthCheck } = require("../../app/keyWatcher")
+
 module.exports = {
   timeout: {
     get isConnected() {
       return new Promise(r => setTimeout(r, 4000))
-    }
+    },
+    healthCheck: nodeHealthCheck,
   },
   unavailable: {
     get isConnected() {
       return false
-    }
+    },
+    healthCheck: nodeHealthCheck,
   },
   available: {
+    healthCheck: nodeHealthCheck,
     get isConnected() {
       return true
     },

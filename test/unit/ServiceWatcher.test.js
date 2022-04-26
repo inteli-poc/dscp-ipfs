@@ -192,7 +192,7 @@ describe('ServiceWatcher', function () {
         SW.services = [
           {
             name: 'substrate',
-            poll: () => SW.substrate(substrate.available),
+            poll: () => substrate.available.healthCheck(substrate.available, 'substrate'),
           },
         ]
         await SW.delay(1000)

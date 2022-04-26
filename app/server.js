@@ -3,8 +3,8 @@ const pinoHttp = require('pino-http')
 
 const { PORT } = require('./env')
 const logger = require('./logger')
-const { setupKeyWatcher } = require('./keyWatcher')
-const { setupIpfs } = require('./ipfs')
+const { setupKeyWatcher, nodeHealthCheck } = require('./keyWatcher')
+const { setupIpfs, ipfsHealthCheack } = require('./ipfs')
 const ServiceWatcher = require('./utils/ServiceWatcher')
 
 async function createHttpServer() {
@@ -19,8 +19,19 @@ async function createHttpServer() {
     },
   })
 
-  // might be a good idea to have a dedicagted method for adding more api objects
-  const sw = new ServiceWatcher({ substrate: nodeApi._api, ipfs })
+  // setup service watcher
+  // TODO add methdo foro addng service watcher so it can be done
+  // by calling sw.addService
+  const sw = new ServiceWatcher({
+    substrate: {
+      ...nodeApi._api,
+      healthCheck: nodeHealthCheck,
+    },
+    ipfs: {
+      ...ipfs,
+      healthCheck: ipfsHealthCheack,
+    },
+  })
 
   app.use((req, res, next) => {
     if (req.path !== '/health') requestLogger(req, res)

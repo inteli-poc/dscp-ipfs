@@ -13,53 +13,6 @@ class ServiceWatcher {
     this.services = this.#init(apis)
   }
 
-  async ipfs(api, name = 'ipfs') {
-    try {
-      if (!api || !api.pid) throw new ConnectionError({ name })
-      const { spawnfile, pid, killed } = api
-
-      return {
-        name,
-        status: 'up',
-        details: {
-          spawnfile,
-          pid,
-          killed,
-        },
-      }
-    } catch (error) {
-      return { name, status: 'error', error }
-    }
-  }
-
-  // substrate polling function, each service should have their own
-  async substrate(api, name = 'substrate') {
-    try {
-      if (!(await api.isConnected)) throw new ConnectionError({ name })
-      const [chain, runtime] = await Promise.all([api.runtimeChain, api.runtimeVersion])
-
-      return {
-        name,
-        status: 'up',
-        details: {
-          chain,
-          runtime: {
-            name: runtime.specName,
-            versions: {
-              spec: runtime.specVersion.toNumber(),
-              impl: runtime.implVersion.toNumber(),
-              authoring: runtime.authoringVersion.toNumber(),
-              transaction: runtime.transactionVersion.toNumber(),
-            },
-          },
-        },
-      }
-    } catch (error) {
-      // TODO logging and/or any other handling
-      return { name, status: 'error', error }
-    }
-  }
-
   delay(ms, service = false) {
     return new Promise((resolve, reject) => {
       setTimeout(() => (service ? reject(new TimeoutError(service)) : resolve()), ms)
@@ -81,14 +34,12 @@ class ServiceWatcher {
   #init(services) {
     return Object.keys(services)
       .map((service) => {
-        if (!this[service]) {
-          // TODO log that there are no polling functions for this service
-          return null
-        }
-        return {
+        const { healthCheck, ...api } = services[service]
+        
+        return healthCheck ? {
           name: service,
-          poll: () => this[service](services[service]),
-        }
+          poll: () => healthCheck(api, service),
+        } : null
       })
       .filter(Boolean)
   }

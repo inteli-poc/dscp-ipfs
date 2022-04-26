@@ -83,6 +83,26 @@ async function setupIpfs() {
   return that
 }
 
+async function ipfsHealthCheack(api, name = 'ipfs') {
+  try {
+    if (!api || !api.pid) throw new ConnectionError({ name })
+    const { spawnfile, pid, killed } = api
+
+    return {
+      name,
+      status: 'up',
+      details: {
+        spawnfile,
+        pid,
+        killed,
+      },
+    }
+  } catch (error) {
+    return { name, status: 'error', error }
+  }
+}
+
 module.exports = {
   setupIpfs,
+  ipfsHealthCheack,
 }
