@@ -10,6 +10,7 @@ describe('health checks', function () {
   before(async function () {
     context.response = await fetch(`http://localhost:${PORT}/health`)
     context.body = await context.response.json()
+    console.log(context)
   })
 
   it('should returns 200', function () {
