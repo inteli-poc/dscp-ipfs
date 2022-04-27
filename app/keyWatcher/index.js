@@ -10,8 +10,8 @@ module.exports = {
   },
   nodeHealthCheck: async (api, name = 'substrate') => {
     try {
-      if (!(await api.isConnected)) throw new ConnectionError({ name })
-      const [chain, runtime] = await Promise.all([api.runtimeChain, api.runtimeVersion])
+      if (!(await api._isConnected)) throw new ConnectionError({ name })
+      const [chain, runtime] = await Promise.all([api._runtimeChain, api._runtimeVersion])
 
       return {
         name,
