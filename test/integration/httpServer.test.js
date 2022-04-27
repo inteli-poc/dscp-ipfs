@@ -37,11 +37,11 @@ describe('health checks', function () {
           details: {
             chain: 'Development',
             runtime: {
-              name: 'dscp-node',
+              name: 'dscp',
               versions: {
                 authoring: 1,
                 impl: 1,
-                spec: 300,
+                spec: 310,
                 transaction: 1,
               },
             },
