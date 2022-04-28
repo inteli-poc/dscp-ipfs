@@ -5,6 +5,8 @@ class ServiceWatcher {
   #pollPeriod
   #timeout
 
+  // TODO add a method for adding a sertvice once 
+  // this has been initialized already
   constructor(apis) {
     this.report = {}
     this.stopped = false
@@ -29,8 +31,6 @@ class ServiceWatcher {
     }
   }
 
-  // services that we would like to monitor should be added here
-  // with [name] and { poll, properties }, more can be added for enrichment
   #init(services) {
     return Object.keys(services)
       .map((service) => {
@@ -46,7 +46,7 @@ class ServiceWatcher {
   }
 
   // main generator function with infinate loop
-  generator(self = this) {
+  #generator(self = this) {
     this.stopped = false
     return {
       [Symbol.asyncIterator]: async function* () {
@@ -72,10 +72,9 @@ class ServiceWatcher {
     this.stopped = true
   }
 
-  // TODO methood for stopping (update while val)
   async start() {
     if (this.services.length < 1) return this.stop()
-    this.gen = this.generator()
+    this.gen = this.#generator()
     for await (const service of this.gen) {
       const { name, ...details } = service
       this.update(name, details)
