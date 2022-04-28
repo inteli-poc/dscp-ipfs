@@ -175,9 +175,6 @@ jobs:
           time: '30s'
       - name: Run tests
         run: npm run test
-        env:
-          HEALTHCHECK_POLL_PERIOD_MS: 1000
-          HEALTHCHECK_TIMEOUT_MS: 1000
 
   check-version:
     name: 'Check version'

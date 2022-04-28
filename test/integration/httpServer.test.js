@@ -12,41 +12,7 @@ describe('health checks', function () {
     context.body = await context.response.json()
   })
 
-  describe('if any of the services status is down or error', () => {
-    it('should return 503', function () {
-      expect(context.response.status).to.equal(503)
-    })
-
-    it('and report contains IPFS status', function () {
-      expect(context.body)
-        .to.have.property('ipfs')
-        .that.deep.equal({
-          error: {
-            message: 'Connection is not established, will retry during next polling cycle',
-            service: 'ipfs',
-          },
-          status: 'error',
-        })
-    })
-
-    it('also contains substrate node status', () => {
-      expect(context.body)
-        .to.have.property('substrate')
-        .that.deep.equal({
-          status: 'up',
-          details: {
-            chain: 'Development',
-            runtime: {
-              name: 'dscp',
-              versions: {
-                authoring: 1,
-                impl: 1,
-                spec: 310,
-                transaction: 1,
-              },
-            },
-          },
-        })
-    })
+  it('returns 200 along with the report', () => {
+    expect(context.response.status).to.equal(200)
   })
 })
