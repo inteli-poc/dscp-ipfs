@@ -2,6 +2,7 @@
 
 Manages a go-ipfs instance maintaining the private network swarm key based on the value from a `dscp-node` instance.
 
+
 ## Environment Variables
 
 `dscp-ipfs` is configured primarily using environment variables as follows:
