@@ -5,7 +5,7 @@ class ServiceWatcher {
   #pollPeriod
   #timeout
 
-  // TODO add a method for adding a sertvice once 
+  // TODO add a method for adding a sertvice once
   // this has been initialized already
   constructor(apis) {
     this.report = {}
