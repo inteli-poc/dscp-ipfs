@@ -149,6 +149,12 @@ describe('ServiceWatcher', function () {
         SW.gen.return()
       })
 
+      it('creates an instance of ConnectionError', () => {
+        expect(SW.report.substrate) // prettier-ignore
+          .to.have.all.keys('error')
+          .that.is.a.instanceOf(ConnectionError)
+      })
+
       it('reflects status in this.report object with error message', () => {
         expect(SW.report) // prettier-ignore
           .to.have.property('substrate')
@@ -156,7 +162,6 @@ describe('ServiceWatcher', function () {
           .that.deep.contain({ status: 'error' })
         expect(SW.report.substrate.error) // prettier-ignore
           .to.have.all.keys('message', 'service')
-          .that.is.a.instanceOf(ConnectionError)
           .that.contains({
             message: connectionErrorMsg,
           })
