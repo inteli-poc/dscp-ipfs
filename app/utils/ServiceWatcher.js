@@ -9,7 +9,6 @@ class ServiceWatcher {
   // this has been initialized already
   constructor(apis) {
     this.report = {}
-    this.stopped = false
     this.#pollPeriod = HEALTHCHECK_POLL_PERIOD_MS
     this.#timeout = HEALTHCHECK_TIMEOUT_MS
     this.services = this.#init(apis)
@@ -45,43 +44,36 @@ class ServiceWatcher {
       .filter(Boolean)
   }
 
-  // main generator function with infinate loop
-  #generator(self = this) {
-    this.stopped = false
-    return {
-      [Symbol.asyncIterator]: async function* () {
-        try {
-          while (true) {
-            await self.delay(self.#pollPeriod)
-            for (const service of self.services) {
-              yield Promise.race([service.poll(), self.delay(self.#timeout, service)])
-            }
-          }
-        } catch (error) {
-          yield {
-            status: 'down',
-            name: error.service,
-            error,
-          }
-        }
-      },
-    }
+  #poll() {
+    return Promise.all(this.services.map((service) => 
+      Promise.race([ service.poll(), this.delay(this.#timeout, service)])
+    ))
   }
 
-  stop() {
-    this.stopped = true
-  }
-
-  async start() {
-    if (this.services.length < 1) return this.stop()
+  start() {
+    if (this.services.length < 1) return null
     this.gen = this.#generator()
-    for await (const service of this.gen) {
-      const { name, ...details } = service
-      this.update(name, details)
-      // TODO refactor this.stop() method
-      if (this.stopped) break
+
+    const recursive = async (pollAll = Promise.resolve([])) => {
+      try {
+        const services = await pollAll
+        services.forEach(({ name, ...rest }) => this.update(name, rest))
+      } catch (error) {
+        const name = error.service || 'server'
+        this.update(name, { error, status: 'error' })
+      }
+
+      await this.delay(this.#pollPeriod)
+      const { value } = this.gen.next()
+      recursive(value)
     }
-    return 'done'
+
+    const { value } = this.gen.next()
+    recursive(value)
+  }
+  
+  * #generator() {
+    while(true) yield this.#poll()
   }
 }
 

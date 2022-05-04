@@ -21,7 +21,7 @@ describe('ServiceWatcher', function () {
   })
 
   afterEach(() => {
-    SW.stop()
+    SW.gen?.return()
   })
 
   describe('delay method', () => {
@@ -77,8 +77,6 @@ describe('ServiceWatcher', function () {
     })
   })
 
-  // TODO teests for ServiceWatcher.stop()
-
   describe('init method', () => {
     it('returns an array of services with polling functions', () => {
       SW = new ServiceWatcher({ substrate: substrate.available })
@@ -107,10 +105,6 @@ describe('ServiceWatcher', function () {
 
     it('does not create a new instance of generator', () => {
       expect(SW.gen).to.be.undefined
-    })
-
-    it('sets stopped to true', () => {
-      expect(SW.stopped).to.equal(true)
     })
 
     it('and has nothing to report', () => {
@@ -151,10 +145,9 @@ describe('ServiceWatcher', function () {
         SW = new ServiceWatcher({ substrate: substrate.unavailable })
         spy(SW, 'update')
         SW.start()
-        await SW.delay(2100)
+        await SW.delay(2000)
+        SW.gen.return()
       })
-
-      afterEach(() => SW.stop())
 
       it('reflects status in this.report object with error message', () => {
         expect(SW.report) // prettier-ignore
@@ -169,7 +162,6 @@ describe('ServiceWatcher', function () {
       })
 
       it('does not stop polling', () => {
-        expect(SW.stopped).to.equal(false)
         expect(SW.update.callCount).to.equal(2)
         expect(SW.update.getCall(0).args[0]).to.equal('substrate')
         expect(SW.update.getCall(1).args[0]).to.equal('substrate')
@@ -198,12 +190,7 @@ describe('ServiceWatcher', function () {
         await SW.delay(1000)
       })
 
-      afterEach(() => {
-        SW.stop()
-      })
-
       it('handles correctly unavalaible service', () => {
-        expect(SW.stopped).to.equal(false)
         expect(SW.update.getCall(0).args[0]).to.equal('substrate')
         expect(SW.update.getCall(0).args[1]) // prettier-ignore
           .to.include.all.keys('error', 'status')
@@ -234,26 +221,21 @@ describe('ServiceWatcher', function () {
             },
           },
         ])
-        expect(SW.stopped).to.equal(false)
       })
     })
 
     describe('if it hits timeout first', () => {
       beforeEach(async () => {
         SW = new ServiceWatcher({ substrate: substrate.timeout })
+        spy(SW, 'update')
         SW.start() // using await so it hits timeout
-        await SW.delay(3000)
+        await SW.delay(4000)
       })
 
-      afterEach(() => {
-        SW.stop()
-      })
-
-      it('creates an instace of timeout error', () => {
+      it('creates an instace of timeout error with error message', () => {
         const { error } = SW.report.substrate
 
         expect(error).to.be.a.instanceOf(TimeoutError)
-        expect(error.name).to.equal('TimeoutError')
         expect(error.message).to.equal('Timeout error, no response from a service')
       })
 
@@ -261,18 +243,18 @@ describe('ServiceWatcher', function () {
         expect(SW.report) // prettier-ignore
           .to.have.property('substrate')
           .that.includes.all.keys('status', 'error')
-          .that.deep.contain({ status: 'down' })
+          .that.deep.contain({ status: 'error' })
       })
 
       it('continues polling', () => {
-        expect(SW.stopped).to.equal(false)
+        expect(SW.update.callCount).to.equal(2)
       })
     })
 
     it('persists substrate node status and details in this.report', async () => {
       SW.start()
       await SW.delay(2000)
-      SW.stop()
+      SW.gen.return()
 
       expect(SW.report) // prettier-ignore
         .to.have.property('substrate')

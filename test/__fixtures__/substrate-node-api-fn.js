@@ -3,7 +3,7 @@ const { nodeHealthCheck } = require("../../app/keyWatcher")
 module.exports = {
   timeout: {
     get _isConnected() {
-      return new Promise(r => setTimeout(r, 4000))
+      return new Promise(r => setTimeout(r, 5000))
     },
     healthCheck: nodeHealthCheck,
   },

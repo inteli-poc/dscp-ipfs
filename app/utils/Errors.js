@@ -1,7 +1,7 @@
 class TimeoutError extends Error {
   constructor(service) {
     super()
-    this.name = this.constructor.name
+    this.type = this.constructor.name
     this.service = service.name
     this.message = 'Timeout error, no response from a service'
   }
