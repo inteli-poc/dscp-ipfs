@@ -45,9 +45,9 @@ class ServiceWatcher {
   }
 
   #poll() {
-    return Promise.all(this.services.map((service) => 
-      Promise.race([ service.poll(), this.delay(this.#timeout, service)])
-    ))
+    return Promise.all(
+      this.services.map((service) => Promise.race([service.poll(), this.delay(this.#timeout, service)]))
+    )
   }
 
   start() {
@@ -71,9 +71,9 @@ class ServiceWatcher {
     const { value } = this.gen.next()
     recursive(value)
   }
-  
-  * #generator() {
-    while(true) yield this.#poll()
+
+  *#generator() {
+    while (true) yield this.#poll()
   }
 }
 
