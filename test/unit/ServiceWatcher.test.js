@@ -145,7 +145,7 @@ describe('ServiceWatcher', function () {
         SW = new ServiceWatcher({ substrate: substrate.unavailable })
         spy(SW, 'update')
         SW.start()
-        await SW.delay(2000)
+        await SW.delay(1500)
         SW.gen.return()
       })
 
@@ -168,7 +168,6 @@ describe('ServiceWatcher', function () {
       })
 
       it('does not stop polling', () => {
-        expect(SW.update.callCount).to.equal(2)
         expect(SW.update.getCall(0).args[0]).to.equal('substrate')
         expect(SW.update.getCall(1).args[0]).to.equal('substrate')
         expect(SW.update.getCall(1).args[1])
