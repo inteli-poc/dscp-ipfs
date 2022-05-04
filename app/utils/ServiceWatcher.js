@@ -67,9 +67,10 @@ class ServiceWatcher {
   }
 
   *#generator() {
-    while (true) yield Promise.all(
-      this.services.map((service) => Promise.race([service.poll(), this.delay(this.#timeout, service)]))
-    )
+    while (true)
+      yield Promise.all(
+        this.services.map((service) => Promise.race([service.poll(), this.delay(this.#timeout, service)]))
+      )
   }
 }
 
