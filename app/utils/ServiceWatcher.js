@@ -44,19 +44,13 @@ class ServiceWatcher {
       .filter(Boolean)
   }
 
-  #poll() {
-    return Promise.all(
-      this.services.map((service) => Promise.race([service.poll(), this.delay(this.#timeout, service)]))
-    )
-  }
-
   start() {
     if (this.services.length < 1) return null
     this.gen = this.#generator()
 
-    const recursive = async (pollAll = Promise.resolve([])) => {
+    const recursive = async (getAll = Promise.resolve([])) => {
       try {
-        const services = await pollAll
+        const services = await getAll
         services.forEach(({ name, ...rest }) => this.update(name, rest))
       } catch (error) {
         const name = error.service || 'server'
@@ -73,7 +67,9 @@ class ServiceWatcher {
   }
 
   *#generator() {
-    while (true) yield this.#poll()
+    while (true) yield Promise.all(
+      this.services.map((service) => Promise.race([service.poll(), this.delay(this.#timeout, service)]))
+    )
   }
 }
 
