@@ -151,7 +151,7 @@ describe('ServiceWatcher', function () {
 
       it('creates an instance of ConnectionError', () => {
         expect(SW.report.substrate) // prettier-ignore
-          .to.have.all.keys('error')
+          .to.have.property('error')
           .that.is.a.instanceOf(ConnectionError)
       })
 
