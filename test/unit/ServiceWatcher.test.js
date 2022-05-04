@@ -234,7 +234,7 @@ describe('ServiceWatcher', function () {
         SW = new ServiceWatcher({ substrate: substrate.timeout })
         spy(SW, 'update')
         SW.start() // using await so it hits timeout
-        await SW.delay(4000)
+        await SW.delay(3000)
       })
 
       it('creates an instace of timeout error with error message', () => {

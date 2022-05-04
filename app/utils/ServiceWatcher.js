@@ -5,8 +5,7 @@ class ServiceWatcher {
   #pollPeriod
   #timeout
 
-  // TODO add a method for adding a sertvice once
-  // this has been initialized already
+  // TODO add a method for updating this.services
   constructor(apis) {
     this.report = {}
     this.#pollPeriod = HEALTHCHECK_POLL_PERIOD_MS
@@ -30,6 +29,7 @@ class ServiceWatcher {
     }
   }
 
+  // organize services and store in this.services
   #init(services) {
     return Object.keys(services)
       .map((service) => {
@@ -44,6 +44,8 @@ class ServiceWatcher {
       .filter(Boolean)
   }
 
+  // fire and forget, cancel using ServiceWatcher.gen.return()
+  // or ServiceWatcher.gen.throw(<instance of error>)
   start() {
     if (this.services.length < 1) return null
     this.gen = this.#generator()
@@ -52,12 +54,13 @@ class ServiceWatcher {
       try {
         const services = await getAll
         services.forEach(({ name, ...rest }) => this.update(name, rest))
+        await this.delay(this.#pollPeriod)
       } catch (error) {
+        // if no service assume that this is server error e.g. TypeError, Parse...
         const name = error.service || 'server'
         this.update(name, { error, status: 'error' })
       }
 
-      await this.delay(this.#pollPeriod)
       const { value } = this.gen.next()
       recursive(value)
     }
@@ -66,6 +69,7 @@ class ServiceWatcher {
     recursive(value)
   }
 
+  // a generator function that returns poll fn for each service
   *#generator() {
     while (true)
       yield Promise.all(
