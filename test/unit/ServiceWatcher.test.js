@@ -5,7 +5,7 @@ const { spy } = require('sinon')
 const substrate = require('../__fixtures__/substrate-node-api-fn')
 const ipfs = require('../__fixtures__/ipfs-api-fn')
 const ServiceWatcher = require('../../app/utils/ServiceWatcher')
-const { TimeoutError } = require('../../app/utils/Errors')
+const { TimeoutError, ConnectionError } = require('../../app/utils/Errors')
 
 const connectionErrorMsg = 'Connection is not established, will retry during next polling cycle'
 
@@ -156,6 +156,7 @@ describe('ServiceWatcher', function () {
           .that.deep.contain({ status: 'error' })
         expect(SW.report.substrate.error) // prettier-ignore
           .to.have.all.keys('message', 'service')
+          .that.is.a.instanceOf(ConnectionError)
           .that.contains({
             message: connectionErrorMsg,
           })
