@@ -3,28 +3,45 @@ const pinoHttp = require('pino-http')
 
 const { PORT } = require('./env')
 const logger = require('./logger')
-const { setupKeyWatcher } = require('./keyWatcher')
-const { setupIpfs } = require('./ipfs')
+const { setupKeyWatcher, nodeHealthCheck } = require('./keyWatcher')
+const { setupIpfs, ipfsHealthCheack } = require('./ipfs')
+const ServiceWatcher = require('./utils/ServiceWatcher')
 
 async function createHttpServer() {
   const app = express()
   const requestLogger = pinoHttp({ logger })
   const ipfs = await setupIpfs()
 
-  await setupKeyWatcher({
+  const nodeApi = await setupKeyWatcher({
     onUpdate: async (value) => {
       await ipfs.stop()
       await ipfs.start({ swarmKey: value })
     },
   })
 
-  await app.use((req, res, next) => {
+  // setup service watcher
+  // TODO add methdo foro addng service watcher so it can be done
+  // by calling sw.addService
+  const sw = new ServiceWatcher({
+    substrate: {
+      ...nodeApi._api,
+      healthCheck: nodeHealthCheck,
+    },
+    ipfs: {
+      ...ipfs,
+      healthCheck: ipfsHealthCheack,
+    },
+  })
+
+  app.use((req, res, next) => {
     if (req.path !== '/health') requestLogger(req, res)
     next()
   })
 
   app.get('/health', async (req, res) => {
-    res.status(200).send({ status: 'ok' })
+    const statusCode = Object.values(sw.report).some((srv) => ['down', 'error'].includes(srv.status)) ? 503 : 200
+
+    res.status(statusCode).send(sw.report)
   })
 
   // Sorry - app.use checks arity
@@ -38,35 +55,22 @@ async function createHttpServer() {
     }
   })
 
-  return { app, ipfs }
+  return { app, ipfs, sw }
 }
 
 /* istanbul ignore next */
 async function startServer() {
   try {
-    const { app, ipfs } = await createHttpServer()
-
+    const { app, ipfs, sw } = await createHttpServer()
     const server = await new Promise((resolve, reject) => {
-      let resolved = false
       const server = app.listen(PORT, (err) => {
-        if (err) {
-          if (!resolved) {
-            resolved = true
-            reject(err)
-          }
-        }
+        if (err) return reject(err)
         logger.info(`Listening on port ${PORT} `)
-        if (!resolved) {
-          resolved = true
-          resolve(server)
-        }
+        resolve(server)
+        sw.start()
       })
-      server.on('error', (err) => {
-        if (!resolved) {
-          resolved = true
-          reject(err)
-        }
-      })
+
+      server.on('error', (err) => reject(err))
     })
 
     const closeHandler = (exitCode) => async () => {
