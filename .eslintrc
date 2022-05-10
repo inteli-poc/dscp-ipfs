@@ -5,10 +5,12 @@
     "es6": true,
     "node": true
   },
+  "parser": "babel-eslint",
   "parserOptions": {
     "ecmaVersion": 9,
     "sourceType": "module"
   },
+  "ignorePatterns": ["**/test/__fixtures__/**/*"],
   "rules": {
     "prettier/prettier": "error",
     "no-console": 2

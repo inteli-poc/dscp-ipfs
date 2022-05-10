@@ -1,8 +1,11 @@
 # fullNameOverride:
 config:
   healthCheckPort: 80
+  healthCheckPollPeriod: 30000
+  healthCheckTimeout: 2000
   # nodeHost: "" # This overrides dscpNode.enabled
   # nodePort:
+
   logLevel: info
   ipfsApiPort: 5001
   ipfsSwarmPort: 4001
@@ -33,7 +36,7 @@ config:
 image:
   repository: ghcr.io/digicatapult/dscp-ipfs
   pullPolicy: IfNotPresent
-  tag: 'v2.0.2'
+  tag: 'v2.0.4'
 
 storage:
   storageClass: ""

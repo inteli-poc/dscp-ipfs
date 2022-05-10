@@ -4,7 +4,7 @@ const fetch = require('node-fetch')
 
 const { PORT } = require('../../app/env')
 
-describe('health', function () {
+describe('health checks', function () {
   const context = {}
 
   before(async function () {
@@ -12,11 +12,7 @@ describe('health', function () {
     context.body = await context.response.json()
   })
 
-  it('should return 200', function () {
+  it('returns 200 along with the report', () => {
     expect(context.response.status).to.equal(200)
-  })
-
-  it('should return success', function () {
-    expect(context.body).to.deep.equal({ status: 'ok' })
   })
 })

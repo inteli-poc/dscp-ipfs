@@ -1,6 +1,7 @@
 const { spawn } = require('child_process')
 const EventEmitter = require('events')
 
+const { ConnectionError } = require('./utils/Errors')
 const { IPFS_PATH, IPFS_EXECUTABLE, IPFS_ARGS, IPFS_LOG_LEVEL } = require('./env')
 const logger = require('./logger')
 
@@ -51,6 +52,7 @@ async function setupIpfs() {
       })
 
       ipfs.on('close', unexpectedCloseListener)
+      that.ipfs = ipfs
     },
     stop: async () => {
       logger.info('Stopping IPFS')
@@ -82,6 +84,26 @@ async function setupIpfs() {
   return that
 }
 
+async function ipfsHealthCheack(api, name = 'ipfs') {
+  try {
+    if (!api || !api.pid) throw new ConnectionError({ name })
+    const { spawnfile, pid, killed } = api
+
+    return {
+      name,
+      status: 'up',
+      details: {
+        spawnfile,
+        pid,
+        killed,
+      },
+    }
+  } catch (error) {
+    return { name, status: 'error', error }
+  }
+}
+
 module.exports = {
   setupIpfs,
+  ipfsHealthCheack,
 }
