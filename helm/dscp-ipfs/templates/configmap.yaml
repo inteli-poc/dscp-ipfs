@@ -5,8 +5,8 @@ metadata:
   labels:
     {{- include "dscp-ipfs.labels" . | nindent 4 }}
 data:
-  healthCheckPollPeriod: {{ .Values.config.healthCheckPort | quote }}
-  healthCheckTimeout: {{ .Values.config.healthCheckPort | quote }}
+  healthCheckPollPeriod: {{ .Values.config.healthCheckPollPeriod | quote }}
+  healthCheckTimeout: {{ .Values.config.healthCheckTimeout | quote }}
   healthCheckPort: {{ .Values.config.healthCheckPort | quote }}
   logLevel: {{ .Values.config.logLevel }}
   {{- if .Values.config.nodeHost }}
