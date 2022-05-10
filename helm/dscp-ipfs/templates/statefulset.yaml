@@ -55,12 +55,12 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: {{ include "dscp-ipfs.fullname" . }}-config
-                  key: healthCheckPort
+                  key: healthCheckPollPeriod
             - name: HEALTHCHECK_TIMEOUT_MS
               valueFrom:
                 configMapKeyRef:
                   name: {{ include "dscp-ipfs.fullname" . }}-config
-                  key: healthCheckPort
+                  key: healthCheckTimeout
             - name: PORT
               valueFrom:
                 configMapKeyRef:
