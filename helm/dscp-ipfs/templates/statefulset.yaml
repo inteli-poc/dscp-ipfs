@@ -51,6 +51,16 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
           command: [ './app/index.js' ]
           env:
+            - name: HEALTHCHECK_POLL_PERIOD_MS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "dscp-ipfs.fullname" . }}-config
+                  key: healthCheckPort
+            - name: HEALTHCHECK_TIMEOUT_MS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "dscp-ipfs.fullname" . }}-config
+                  key: healthCheckPort
             - name: PORT
               valueFrom:
                 configMapKeyRef:
