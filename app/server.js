@@ -16,7 +16,7 @@ async function createHttpServer() {
     substrate: { healthCheck: nodeHealthCheck },
     ipfs: { healthCheck: () => ipfsHealthCheack(ipfs) },
   })
-  
+
   await setupKeyWatcher({
     onUpdate: async (value) => {
       await ipfs.stop()
