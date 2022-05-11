@@ -13,7 +13,7 @@ async function createHttpServer() {
   const ipfs = await setupIpfs()
 
   const sw = new ServiceWatcher({
-    substrate: { healthCheck: nodeHealthCheck },
+    substrate: { healthCheck: () => nodeHealthCheck({ isReady: false }) },
     ipfs: { healthCheck: () => ipfsHealthCheack(ipfs) },
   })
 

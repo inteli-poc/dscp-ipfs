@@ -5,15 +5,18 @@ module.exports = {
     get isConnected() {
       return new Promise(r => setTimeout(r, 5000))
     },
+    isReady: true,
     healthCheck: nodeHealthCheck,
   },
   unavailable: {
+    isReady: true,
     get isConnected() {
       return false
     },
     healthCheck: nodeHealthCheck,
   },
   available: {
+    isReady: true,
     healthCheck: nodeHealthCheck,
     get isConnected() {
       return true

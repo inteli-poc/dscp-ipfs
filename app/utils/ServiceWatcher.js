@@ -37,7 +37,7 @@ class ServiceWatcher {
         return healthCheck
           ? {
               name: service,
-              poll: () => healthCheck(false, service),
+              poll: () => healthCheck(api),
             }
           : null
       })

@@ -10,7 +10,7 @@ module.exports = {
   },
   nodeHealthCheck: async (api = false, name = 'substrate') => {
     try {
-      if (!api) {
+      if (!api.isReady) {
         const { _api } = await createNodeApi()
         api = _api
       }
