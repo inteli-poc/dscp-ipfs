@@ -8,10 +8,14 @@ module.exports = {
     await setupKeyWatcher(api)({ onUpdate })
     return api
   },
-  nodeHealthCheck: async (api, name = 'substrate') => {
+  nodeHealthCheck: async (api = false, name = 'substrate') => {
     try {
-      if (!(await api._isConnected)) throw new ConnectionError({ name })
-      const [chain, runtime] = await Promise.all([api._runtimeChain, api._runtimeVersion])
+      if (!api) {
+        const { _api } = await createNodeApi()
+        api = _api
+      }
+      if (!(await api.isConnected)) throw new ConnectionError({ name })
+      const [chain, runtime] = await Promise.all([api.runtimeChain, api.runtimeVersion])
 
       return {
         name,

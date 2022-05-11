@@ -2,26 +2,26 @@ const { nodeHealthCheck } = require("../../app/keyWatcher")
 
 module.exports = {
   timeout: {
-    get _isConnected() {
+    get isConnected() {
       return new Promise(r => setTimeout(r, 5000))
     },
     healthCheck: nodeHealthCheck,
   },
   unavailable: {
-    get _isConnected() {
+    get isConnected() {
       return false
     },
     healthCheck: nodeHealthCheck,
   },
   available: {
     healthCheck: nodeHealthCheck,
-    get _isConnected() {
+    get isConnected() {
       return true
     },
-    get _runtimeChain() {
+    get runtimeChain() {
       return "Test"
     },
-    get _runtimeVersion() {
+    get runtimeVersion() {
       return {
         specName: "dscp-node",
         implName: "dscp-node",

@@ -62,7 +62,7 @@ class ServiceWatcher {
       }
 
       const { value } = this.gen.next()
-      recursive(value)
+      if (value) return recursive(value)
     }
 
     const { value } = this.gen.next()
