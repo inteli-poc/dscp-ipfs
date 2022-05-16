@@ -14,7 +14,8 @@ async function createHttpServer() {
 
   const sw = new ServiceWatcher({
     substrate: { healthCheck: () => nodeHealthCheck({ isReady: false }) },
-    ipfs: { healthCheck: () => ipfsHealthCheack(ipfs) },
+    // TODO temporary commenting out so I can investigate the health helch foor ipfs
+    // ipfs: { healthCheck: () => ipfsHealthCheack(ipfs) },
   })
 
   await setupKeyWatcher({
