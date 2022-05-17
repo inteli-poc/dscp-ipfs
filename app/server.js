@@ -4,6 +4,7 @@ const pinoHttp = require('pino-http')
 const { PORT } = require('./env')
 const logger = require('./logger')
 const { setupKeyWatcher, nodeHealthCheck } = require('./keyWatcher')
+const { ipfsHealthCheack } = require('./ipfs')
 const { setupIpfs } = require('./ipfs')
 const ServiceWatcher = require('./utils/ServiceWatcher')
 

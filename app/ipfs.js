@@ -84,7 +84,7 @@ async function setupIpfs() {
   return that
 }
 
-async function ipfsHealthCheack(api, name = 'ipfs') {
+async function ipfsHealthCheack(api = {}, name = 'ipfs') {
   try {
     if (!api.ipfs || !api.ipfs.pid) throw new ConnectionError({ name })
     const { spawnfile, pid, killed } = api.ipfs
