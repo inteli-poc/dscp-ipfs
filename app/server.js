@@ -4,6 +4,7 @@ const pinoHttp = require('pino-http')
 const { PORT } = require('./env')
 const logger = require('./logger')
 const { setupKeyWatcher, nodeHealthCheck } = require('./keyWatcher')
+const { ipfsHealthCheack } = require('./ipfs')
 const { setupIpfs } = require('./ipfs')
 const ServiceWatcher = require('./utils/ServiceWatcher')
 
@@ -14,8 +15,7 @@ async function createHttpServer() {
 
   const sw = new ServiceWatcher({
     substrate: { healthCheck: () => nodeHealthCheck({ isReady: false }) },
-    // TODO temporary commenting out so I can investigate the health helch foor ipfs
-    // ipfs: { healthCheck: () => ipfsHealthCheack(ipfs) },
+    ipfs: { healthCheck: () => ipfsHealthCheack(ipfs) },
   })
 
   await setupKeyWatcher({
