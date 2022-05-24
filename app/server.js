@@ -4,7 +4,8 @@ const pinoHttp = require('pino-http')
 const { PORT } = require('./env')
 const logger = require('./logger')
 const { setupKeyWatcher, nodeHealthCheck } = require('./keyWatcher')
-const { setupIpfs, ipfsHealthCheack } = require('./ipfs')
+const { ipfsHealthCheack } = require('./ipfs')
+const { setupIpfs } = require('./ipfs')
 const ServiceWatcher = require('./utils/ServiceWatcher')
 
 async function createHttpServer() {
@@ -12,24 +13,15 @@ async function createHttpServer() {
   const requestLogger = pinoHttp({ logger })
   const ipfs = await setupIpfs()
 
-  const nodeApi = await setupKeyWatcher({
+  const sw = new ServiceWatcher({
+    substrate: { healthCheck: () => nodeHealthCheck({ isReady: false }) },
+    ipfs: { healthCheck: () => ipfsHealthCheack(ipfs) },
+  })
+
+  await setupKeyWatcher({
     onUpdate: async (value) => {
       await ipfs.stop()
       await ipfs.start({ swarmKey: value })
-    },
-  })
-
-  // setup service watcher
-  // TODO add methdo foro addng service watcher so it can be done
-  // by calling sw.addService
-  const sw = new ServiceWatcher({
-    substrate: {
-      ...nodeApi._api,
-      healthCheck: nodeHealthCheck,
-    },
-    ipfs: {
-      ...ipfs,
-      healthCheck: ipfsHealthCheack,
     },
   })
 
@@ -66,8 +58,8 @@ async function startServer() {
       const server = app.listen(PORT, (err) => {
         if (err) return reject(err)
         logger.info(`Listening on port ${PORT} `)
-        resolve(server)
         sw.start()
+        resolve(server)
       })
 
       server.on('error', (err) => reject(err))

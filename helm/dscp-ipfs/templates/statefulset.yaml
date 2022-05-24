@@ -45,6 +45,35 @@ spec:
           volumeMounts:
             - mountPath: {{ .Values.config.ipfsDataPath }}
               name: ipfs-data
+        {{- if and .Values.config.publicKey .Values.config.privateKey }}              
+        - name: {{ include "dscp-ipfs.initIpfsConfig.name" . }}-keys
+          image: jetbrainsinfra/jq:latest
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+          env:
+            - name: IPFS_PATH
+              value: {{ .Values.config.ipfsDataPath }}
+            - name: IPFS_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "dscp-ipfs.fullname" . }}-secret
+                  key: publicKey
+            - name: IPFS_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "dscp-ipfs.fullname" . }}-secret
+                  key: privateKey
+          envFrom:
+            - configMapRef:
+                name: {{ include "dscp-ipfs.fullname" . }}-config
+          command: ['/bin/sh', '-c', '-e', '-x']
+          args:
+            - |
+              echo "$(jq --arg publickey $IPFS_PUBLIC_KEY '.Identity.PeerID = $publickey' /ipfs/config)" > /ipfs/config ;
+              echo "$(jq --arg privatekey $IPFS_PRIVATE_KEY '.Identity.PrivKey = $privatekey' /ipfs/config)" > /ipfs/config ;
+          volumeMounts:
+            - mountPath: {{ .Values.config.ipfsDataPath }}
+              name: ipfs-data
+        {{- end }}
       containers:
         - name: {{ include "dscp-ipfs.fullname" . }}
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}

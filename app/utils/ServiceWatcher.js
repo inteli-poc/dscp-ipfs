@@ -37,7 +37,7 @@ class ServiceWatcher {
         return healthCheck
           ? {
               name: service,
-              poll: () => healthCheck(api, service),
+              poll: () => healthCheck(api),
             }
           : null
       })
@@ -62,7 +62,7 @@ class ServiceWatcher {
       }
 
       const { value } = this.gen.next()
-      recursive(value)
+      if (value) return recursive(value)
     }
 
     const { value } = this.gen.next()
