@@ -16,6 +16,9 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- with .Values.statefulSet.annotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       labels:
         name: {{ include "dscp-ipfs.fullname" . }}
     spec:
@@ -139,7 +142,7 @@ spec:
             - containerPort: {{ .Values.config.ipfsApiPort }}
               name: ipfs-http-api
               protocol: TCP
-          {{- if .Values.config.enableLivenessProbe }}
+          {{- if .Values.statefulSet.livenessProbe.enabled }}
           livenessProbe:
             httpGet:
               path: /health

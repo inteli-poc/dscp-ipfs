@@ -1,7 +1,12 @@
+{{- if .Values.service.swarm.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "dscp-ipfs.fullname" . }}-swarm
+  {{- with .Values.service.swarm.annotations }}
+  annotations:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "dscp-ipfs.labels" . | nindent 4 }}
 spec:
@@ -9,13 +14,19 @@ spec:
     name: {{ include "dscp-ipfs.fullname" . }}
   ports:
     - protocol: 'TCP'
-      port: 4001
+      port: {{ .Values.service.swarm.port }}
       targetPort: {{ .Values.config.ipfsSwarmPort }}
+{{- end }}
 ---
+{{- if .Values.service.api.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "dscp-ipfs.fullname" . }}-api
+  {{- with .Values.service.api.annotations }}
+  annotations:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "dscp-ipfs.labels" . | nindent 4 }}
 spec:
@@ -23,5 +34,6 @@ spec:
     name: {{ include "dscp-ipfs.fullname" . }}
   ports:
     - protocol: 'TCP'
-      port: 5001
+      port: {{ .Values.service.api.port }}
       targetPort: {{ .Values.config.ipfsApiPort }}
+{{- end }}
