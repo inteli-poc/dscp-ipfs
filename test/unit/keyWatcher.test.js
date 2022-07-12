@@ -55,8 +55,7 @@ describe('keyWatcher', function () {
       events: [
         {
           event: {
-            data: [null, new Uint8Array([5, 6, 7, 8]), null],
-            typeDef: [{ type: 'Other' }, { type: 'Key' }, { type: 'Other' }],
+            data: [new Uint8Array([5, 6, 7, 8])],
           },
         },
       ],
@@ -80,8 +79,7 @@ describe('keyWatcher', function () {
       events: [
         {
           event: {
-            data: [null, new Uint8Array([5, 6, 7, 8]), null],
-            typeDef: [{ type: 'Other' }, { type: 'Key' }, { type: 'Other' }],
+            data: [new Uint8Array([5, 6, 7, 8])],
           },
         },
       ],

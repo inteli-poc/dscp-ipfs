@@ -31,6 +31,3 @@ npm run dev
 | IPFS_EXECUTABLE               |    N     |    `ipfs`    | Executable to use to run go-ipfs                                                     |
 | IPFS_ARGS                     |    N     | `["daemon"]` | JSON array of strings to pass as arguments to the `IPFS_EXECUTABLE`                  |
 | IPFS_LOG_LEVEL                |    N     |    `info`    | Log level of the go-ipfs child process                                               |
-| METADATA_KEY_LENGTH           |    N     |     `32`     | Metadata key length in the substrate node                                            |
-| METADATA_VALUE_LITERAL_LENGTH |    N     |     `32`     | Metadata literal value length limit in the substrate node                            |
-| PROCESS_IDENTIFIER_LENGTH     |    N     |     `32`     | Process ID Length                                                                    |

@@ -15,11 +15,8 @@ const setupKeyWatcher =
       events.forEach((record) => {
         // Extract the phase, event and the event types
         const { event } = record
-        const { data, typeDef: types } = event
-
         if (api.isEventKeyUpdate(event)) {
-          const keyIndex = types.findIndex(({ type }) => type === 'Key')
-          onKeyUpdate(data[keyIndex])
+          onKeyUpdate(event.data[0])
         }
       })
     })
