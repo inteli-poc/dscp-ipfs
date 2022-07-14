@@ -34,7 +34,7 @@ WORKDIR /dscp-ipfs
 
 # Install base dependencies
 COPY . .
-RUN --mount=type=secret,id=github GITHUB_PACKAGE_TOKEN=$(cat /run/secrets/github) npm ci --production
+RUN npm ci --production
 
 ENV IPFS_PATH=/ipfs
 
