@@ -49,9 +49,9 @@ statefulSet:
     enabled: true
 
 image:
-  repository: ghcr.io/digicatapult/dscp-ipfs
+  repository: digicatapult/dscp-ipfs
   pullPolicy: IfNotPresent
-  tag: 'v2.4.0'
+  tag: 'v2.5.0'
 
 storage:
   storageClass: ""
