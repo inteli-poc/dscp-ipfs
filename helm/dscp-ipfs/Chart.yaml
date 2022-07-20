@@ -1,8 +1,8 @@
 apiVersion: v2
 name: dscp-ipfs
-appVersion: '2.5.0'
+appVersion: '2.6.0'
 description: A Helm chart for dscp-ipfs
-version: '2.5.0'
+version: '2.6.0'
 type: application
 dependencies:
   - name: dscp-node

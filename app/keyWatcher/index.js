@@ -3,17 +3,12 @@ const { setupKeyWatcher } = require('./keyWatcher')
 const { ConnectionError } = require('../utils/Errors')
 
 module.exports = {
-  setupKeyWatcher: async ({ onUpdate }) => {
-    const api = await createNodeApi()
+  createNodeApi,
+  setupKeyWatcher: async ({ api, onUpdate }) => {
     await setupKeyWatcher(api)({ onUpdate })
-    return api
   },
-  nodeHealthCheck: async (api = false, name = 'substrate') => {
+  nodeHealthCheck: async (api, name = 'substrate') => {
     try {
-      if (!api.isReady) {
-        const { _api } = await createNodeApi()
-        api = _api
-      }
       if (!(await api.isConnected)) throw new ConnectionError({ name })
       const [chain, runtime] = await Promise.all([api.runtimeChain, api.runtimeVersion])
 

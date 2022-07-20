@@ -14,6 +14,7 @@ config:
   ipfsCommand: "/usr/local/bin/ipfs"
   ipfsArgs:
     - daemon
+    - "--migrate"
   # ipfsBootNodeAddress: /dnsaddr/blah.test.com/p2p/PeerId # Valid Format for this is /multiaddr/PeerId see https://github.com/multiformats/multiaddr
   ipfsLogLevel: info
   ipfsSwarmAddrFilters:
@@ -51,7 +52,7 @@ statefulSet:
 image:
   repository: digicatapult/dscp-ipfs
   pullPolicy: IfNotPresent
-  tag: 'v2.5.0'
+  tag: 'v2.6.0'
 
 storage:
   storageClass: ""
