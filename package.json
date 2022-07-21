@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/dscp-ipfs",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "description": "Service for DSCP",
   "main": "app/index.js",
   "scripts": {

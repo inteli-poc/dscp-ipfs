@@ -15,9 +15,10 @@ async function createHttpServer() {
   const api = await createNodeApi()
 
   const sw = new ServiceWatcher({
-    substrate: { healthCheck: () => nodeHealthCheck({ api, isReady: false }) },
+    substrate: { healthCheck: () => nodeHealthCheck(api._api) },
     ipfs: { healthCheck: () => ipfsHealthCheack(ipfs) },
   })
+  await sw.start()
 
   await setupKeyWatcher({
     api,
@@ -60,7 +61,6 @@ async function startServer() {
       const server = app.listen(PORT, (err) => {
         if (err) return reject(err)
         logger.info(`Listening on port ${PORT} `)
-        sw.start()
         resolve(server)
       })
 
@@ -68,6 +68,7 @@ async function startServer() {
     })
 
     const closeHandler = (exitCode) => async () => {
+      sw.gen.return()
       server.close(async () => {
         await ipfs.stop()
         process.exit(exitCode)

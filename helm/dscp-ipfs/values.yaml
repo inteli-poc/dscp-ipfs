@@ -52,7 +52,7 @@ statefulSet:
 image:
   repository: digicatapult/dscp-ipfs
   pullPolicy: IfNotPresent
-  tag: 'v2.6.0'
+  tag: 'v2.6.1'
 
 storage:
   storageClass: ""

@@ -44,29 +44,35 @@ class ServiceWatcher {
       .filter(Boolean)
   }
 
-  // fire and forget, cancel using ServiceWatcher.gen.return()
-  // or ServiceWatcher.gen.throw(<instance of error>)
-  start() {
+  // starts the generator resolving after the first update
+  // use ServiceWatcher.gen.return() to stop
+  async start() {
     if (this.services.length < 1) return null
     this.gen = this.#generator()
 
-    const recursive = async (getAll = Promise.resolve([])) => {
+    const update = async (getAll = Promise.resolve([])) => {
       try {
         const services = await getAll
         services.forEach(({ name, ...rest }) => this.update(name, rest))
-        await this.delay(this.#pollPeriod)
       } catch (error) {
         // if no service assume that this is server error e.g. TypeError, Parse...
         const name = error.service || 'server'
         this.update(name, { error, status: 'error' })
       }
+    }
 
+    const recursive = async () => {
+      await this.delay(this.#pollPeriod)
       const { value } = this.gen.next()
-      if (value) return recursive(value)
+      if (value) {
+        await update(value)
+        return recursive()
+      }
     }
 
     const { value } = this.gen.next()
-    recursive(value)
+    await update(value)
+    recursive()
   }
 
   // a generator function that returns poll fn for each service
