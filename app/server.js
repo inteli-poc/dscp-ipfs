@@ -3,7 +3,7 @@ const pinoHttp = require('pino-http')
 
 const { PORT } = require('./env')
 const logger = require('./logger')
-const { setupKeyWatcher, nodeHealthCheck } = require('./keyWatcher')
+const { createNodeApi, setupKeyWatcher, nodeHealthCheck } = require('./keyWatcher')
 const { ipfsHealthCheack } = require('./ipfs')
 const { setupIpfs } = require('./ipfs')
 const ServiceWatcher = require('./utils/ServiceWatcher')
@@ -12,13 +12,16 @@ async function createHttpServer() {
   const app = express()
   const requestLogger = pinoHttp({ logger })
   const ipfs = await setupIpfs()
+  const api = await createNodeApi()
 
   const sw = new ServiceWatcher({
-    substrate: { healthCheck: () => nodeHealthCheck({ isReady: false }) },
+    substrate: { healthCheck: () => nodeHealthCheck(api._api) },
     ipfs: { healthCheck: () => ipfsHealthCheack(ipfs) },
   })
+  await sw.start()
 
   await setupKeyWatcher({
+    api,
     onUpdate: async (value) => {
       await ipfs.stop()
       await ipfs.start({ swarmKey: value })
@@ -58,7 +61,6 @@ async function startServer() {
       const server = app.listen(PORT, (err) => {
         if (err) return reject(err)
         logger.info(`Listening on port ${PORT} `)
-        sw.start()
         resolve(server)
       })
 
@@ -66,6 +68,7 @@ async function startServer() {
     })
 
     const closeHandler = (exitCode) => async () => {
+      sw.gen.return()
       server.close(async () => {
         await ipfs.stop()
         process.exit(exitCode)

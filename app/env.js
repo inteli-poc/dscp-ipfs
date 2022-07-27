@@ -28,7 +28,7 @@ const vars = envalid.cleanEnv(
       default: 'ipfs',
       devDefault: path.resolve(__dirname, '..', `node_modules`, '.bin', 'ipfs'),
     }),
-    IPFS_ARGS: validateArgs({ default: '["daemon"]' }),
+    IPFS_ARGS: validateArgs({ default: '["daemon", "--migrate"]' }),
     IPFS_LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
     HEALTHCHECK_POLL_PERIOD_MS: envalid.num({ default: 30 * 1000, devDefault: 1000 }),
     HEALTHCHECK_TIMEOUT_MS: envalid.num({ default: 2 * 1000, devDefault: 1000 }),

@@ -233,11 +233,11 @@ describe('ServiceWatcher', function () {
       beforeEach(async () => {
         SW = new ServiceWatcher({ substrate: substrate.timeout })
         spy(SW, 'update')
-        SW.start() // using await so it hits timeout
+        await SW.start() // using await so it hits timeout
         await SW.delay(3000)
       })
 
-      it('creates an instace of timeout error with error message', () => {
+      it('creates an instance of timeout error with error message', () => {
         const { error } = SW.report.substrate
 
         expect(error).to.be.a.instanceOf(TimeoutError)
