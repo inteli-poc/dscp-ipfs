@@ -1,7 +1,7 @@
-const { createNodeApi } = require('../../../app/keyWatcher/api')
+import { createNodeApi } from '../../../app/keyWatcher/api.js'
 
 let nodeApi = null
-const getSwarmKey = async () => {
+export const getSwarmKey = async () => {
   if (nodeApi === null) {
     nodeApi = await createNodeApi()
   }
@@ -9,7 +9,7 @@ const getSwarmKey = async () => {
   return Buffer.from(key)
 }
 
-const setSwarmKey = async (swarmKey) => {
+export const setSwarmKey = async (swarmKey) => {
   const api = nodeApi._api
   await api.isReady
   const sudo = nodeApi._keyring.addFromUri('//Alice')
@@ -32,9 +32,4 @@ const setSwarmKey = async (swarmKey) => {
         unsub = res
       })
   })
-}
-
-module.exports = {
-  getSwarmKey,
-  setSwarmKey,
 }

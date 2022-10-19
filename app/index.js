@@ -1,5 +1,5 @@
 #!/usr/bin/env node
 
-const { startServer } = require('./server')
+import { startServer } from './server.js'
 
 startServer()

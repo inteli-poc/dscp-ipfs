@@ -1,15 +1,15 @@
-const fetch = require('node-fetch')
-const FormData = require('form-data')
+import fetch from 'node-fetch'
+import { FormData, Blob } from 'formdata-node'
 
-const { expect } = require('chai')
+import { expect } from 'chai'
+import delay from 'delay'
 
-const { getSwarmKey, setSwarmKey } = require('./helper/api')
-const { setupIPFS, waitForIpfsApi } = require('./helper/ipfs')
-const delay = require('delay')
+import { getSwarmKey, setSwarmKey } from './helper/api.js'
+import { setupIPFS, waitForIpfsApi } from './helper/ipfs.js'
 
 const uploadA = async (fileName, contents) => {
   const form = new FormData()
-  form.append('file', Buffer.from(contents, 'utf8'), fileName)
+  form.append('file', new Blob([contents]), fileName)
   const body = await fetch(`http://localhost:5001/api/v0/add?cid-version=0`, {
     method: 'POST',
     body: form,

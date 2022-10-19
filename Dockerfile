@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.3-labs
 
-ARG IPFS_BUILD_IMAGE_VERSION=1.17-alpine3.15
+ARG IPFS_BUILD_IMAGE_VERSION=1.19.2-alpine3.15
 ARG NODE_RUNTIME_IMAGE_VERSION=16-alpine
 FROM golang:$IPFS_BUILD_IMAGE_VERSION AS ipfs_build
 
@@ -10,7 +10,7 @@ RUN apk add --no-cache git make bash gcc musl-dev
 
 WORKDIR /target
 
-ARG IPFS_TAG="v0.13.1"
+ARG IPFS_TAG="v0.16.0"
 
 RUN <<EOF
 set -ex

@@ -1,5 +1,5 @@
-const { TimeoutError } = require('./Errors')
-const { HEALTHCHECK_POLL_PERIOD_MS, HEALTHCHECK_TIMEOUT_MS } = require('../env')
+import { TimeoutError } from './Errors.js'
+import env from '../env.js'
 
 class ServiceWatcher {
   #pollPeriod
@@ -8,8 +8,8 @@ class ServiceWatcher {
   // TODO add a method for updating this.services
   constructor(apis) {
     this.report = {}
-    this.#pollPeriod = HEALTHCHECK_POLL_PERIOD_MS
-    this.#timeout = HEALTHCHECK_TIMEOUT_MS
+    this.#pollPeriod = env.HEALTHCHECK_POLL_PERIOD_MS
+    this.#timeout = env.HEALTHCHECK_TIMEOUT_MS
     this.services = this.#init(apis)
   }
 
@@ -84,4 +84,4 @@ class ServiceWatcher {
   }
 }
 
-module.exports = ServiceWatcher
+export default ServiceWatcher
