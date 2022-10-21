@@ -1,11 +1,11 @@
-const { describe, it } = require('mocha')
-const { expect } = require('chai')
-const { spy } = require('sinon')
+import { describe, it } from 'mocha'
+import { expect } from 'chai'
+import { spy } from 'sinon'
 
-const substrate = require('../__fixtures__/substrate-node-api-fn')
-const ipfs = require('../__fixtures__/ipfs-api-fn')
-const ServiceWatcher = require('../../app/utils/ServiceWatcher')
-const { TimeoutError, ConnectionError } = require('../../app/utils/Errors')
+import substrate from '../__fixtures__/substrate-node-api-fn.js'
+import ipfs from '../__fixtures__/ipfs-api-fn.js'
+import ServiceWatcher from '../../app/utils/ServiceWatcher.js'
+import { TimeoutError, ConnectionError } from '../../app/utils/Errors.js'
 
 const connectionErrorMsg = 'Connection is not established, will retry during next polling cycle'
 

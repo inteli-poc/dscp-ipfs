@@ -1,12 +1,12 @@
-const { ipfsHealthCheack } = require('../../app/ipfs');
+import { ipfsHealthCheck } from '../../app/ipfs.js'
 
-module.exports = {
+export default {
   available: {
     ipfs: {
       pid: 10,
       spawnfile: '/path/to/file/test/spawn.key',
       killed: false,
     },
-    healthCheck: ipfsHealthCheack,
-  }
+    healthCheck: ipfsHealthCheck,
+  },
 }

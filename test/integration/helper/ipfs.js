@@ -1,16 +1,19 @@
-const { before, after } = require('mocha')
+import { before, after } from 'mocha'
 
-const os = require('os')
-const path = require('path')
-const fs = require('fs/promises')
-const { spawn, spawnSync } = require('child_process')
+import os from 'os'
+import path from 'path'
+import fs from 'fs/promises'
+import { spawn, spawnSync } from 'child_process'
+import fetch from 'node-fetch'
+import delay from 'delay'
+import { fileURLToPath } from 'url'
 
-const fetch = require('node-fetch')
-const delay = require('delay')
+import env from '../../../app/env.js'
 
-const { IPFS_EXECUTABLE, IPFS_ARGS } = require('../../../app/env')
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
-const waitForIpfsApi = async (port) => {
+export const waitForIpfsApi = async (port) => {
   for (let waitCount = 0; waitCount < 60; waitCount++) {
     try {
       const fetchRes = await fetch(`http://localhost:${port}/api/v0/version`, { method: 'POST' })
@@ -24,11 +27,11 @@ const waitForIpfsApi = async (port) => {
   }
 }
 
-const setupIPFS = (context) => {
+export const setupIPFS = (context) => {
   before(async function () {
     context.ipfsDir = await fs.mkdtemp(path.join(os.tmpdir(), 'dscp-ipfs-'))
 
-    spawnSync(IPFS_EXECUTABLE, ['init'], {
+    spawnSync(env.IPFS_EXECUTABLE, ['init'], {
       env: {
         ...process.env,
         IPFS_PATH: context.ipfsDir,
@@ -43,7 +46,7 @@ const setupIPFS = (context) => {
       { mode: 0o400 }
     )
 
-    context.ipfs = spawn(IPFS_EXECUTABLE, IPFS_ARGS, {
+    context.ipfs = spawn(env.IPFS_EXECUTABLE, env.IPFS_ARGS, {
       env: {
         ...process.env,
         LIBP2PFORCEPNET: 1,
@@ -57,9 +60,4 @@ const setupIPFS = (context) => {
   after(async function () {
     context.ipfs.kill()
   })
-}
-
-module.exports = {
-  setupIPFS,
-  waitForIpfsApi,
 }

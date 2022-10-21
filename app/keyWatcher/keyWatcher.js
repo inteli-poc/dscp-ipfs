@@ -1,6 +1,6 @@
-const logger = require('../logger')
+import logger from '../logger.js'
 
-const setupKeyWatcher =
+export const setupKeyWatcher =
   (api) =>
   async ({ onUpdate }) => {
     const onKeyUpdate = (keyU8Array) => {
@@ -23,7 +23,3 @@ const setupKeyWatcher =
     const key = await api.getCurrentKey()
     onKeyUpdate(key)
   }
-
-module.exports = {
-  setupKeyWatcher,
-}

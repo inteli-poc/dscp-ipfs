@@ -1,12 +1,12 @@
-const { buildApi } = require('@digicatapult/dscp-node')
+import { buildApi } from '@digicatapult/dscp-node'
 
-const { NODE_HOST, NODE_PORT } = require('../env')
+import env from '../env.js'
 
-const createNodeApi = async () => {
+export const createNodeApi = async () => {
   const { api, keyring } = buildApi({
     options: {
-      apiHost: NODE_HOST,
-      apiPort: NODE_PORT,
+      apiHost: env.NODE_HOST,
+      apiPort: env.NODE_PORT,
     },
   })
 
@@ -20,5 +20,3 @@ const createNodeApi = async () => {
     setupEventProcessor: (eventProcessor) => api.query.system.events(eventProcessor),
   }
 }
-
-module.exports = { createNodeApi }

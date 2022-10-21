@@ -1,21 +1,18 @@
-const os = require('os')
-const path = require('path')
-const fs = require('fs/promises')
-const fsWithSync = require('fs')
-const { spawnSync } = require('child_process')
+import path from 'path'
+import fs from 'fs/promises'
+import { spawnSync } from 'child_process'
+import { fileURLToPath } from 'url'
 
-// this needs to happen before environment variables are parsed. Hence done synchronously here
-const ipfsDir = fsWithSync.mkdtempSync(path.join(os.tmpdir(), 'dscp-ipfs-'))
-process.env.IPFS_PATH = ipfsDir
+import env from '../../app/env.js'
+import { startServer, stopServer } from './helper/server.js'
+import { waitForIpfsApi } from './helper/ipfs.js'
 
-const { IPFS_EXECUTABLE } = require('../../app/env')
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
-const { startServer, stopServer } = require('./helper/server')
-const { waitForIpfsApi } = require('./helper/ipfs')
-
-exports.mochaGlobalSetup = async function () {
-  spawnSync(IPFS_EXECUTABLE, ['init'])
-  await fs.copyFile(path.join(__dirname, '..', 'config', 'node-1.json'), path.join(ipfsDir, 'config'))
+export const mochaGlobalSetup = async function () {
+  spawnSync(env.IPFS_EXECUTABLE, ['init'])
+  await fs.copyFile(path.join(__dirname, '..', 'config', 'node-1.json'), path.join(env.IPFS_PATH, 'config'))
 
   this.stopServer = stopServer
 
@@ -23,6 +20,6 @@ exports.mochaGlobalSetup = async function () {
   await waitForIpfsApi(`5001`)
 }
 
-exports.mochaGlobalTeardown = async function () {
+export const mochaGlobalTeardown = async function () {
   await this.stopServer(this)
 }

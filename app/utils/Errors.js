@@ -1,4 +1,4 @@
-class TimeoutError extends Error {
+export class TimeoutError extends Error {
   constructor(service) {
     super()
     this.type = this.constructor.name
@@ -7,15 +7,10 @@ class TimeoutError extends Error {
   }
 }
 
-class ConnectionError extends Error {
+export class ConnectionError extends Error {
   constructor(service) {
     super()
     this.service = service.name
     this.message = 'Connection is not established, will retry during next polling cycle'
   }
-}
-
-module.exports = {
-  TimeoutError,
-  ConnectionError,
 }

@@ -1,13 +1,14 @@
-const { spawn } = require('child_process')
-const EventEmitter = require('events')
+import { spawn } from 'child_process'
+import EventEmitter from 'events'
 
-const { ConnectionError } = require('./utils/Errors')
-const { IPFS_PATH, IPFS_EXECUTABLE, IPFS_ARGS, IPFS_LOG_LEVEL } = require('./env')
-const logger = require('./logger')
+import { ConnectionError } from './utils/Errors.js'
+import env from './env.js'
+import logger from './logger.js'
+import { createSwarmKeyFile, removeSwarmKeyFile } from './swarmKey.js'
 
-const { createSwarmKeyFile, removeSwarmKeyFile } = require('./swarmKey')
+const { IPFS_PATH, IPFS_EXECUTABLE, IPFS_ARGS, IPFS_LOG_LEVEL } = env
 
-async function setupIpfs() {
+export async function setupIpfs() {
   let ipfs = null
   let ipfsLogger = logger.child({ module: 'ipfs' }, { level: IPFS_LOG_LEVEL })
 
@@ -84,7 +85,7 @@ async function setupIpfs() {
   return that
 }
 
-async function ipfsHealthCheack(api = {}, name = 'ipfs') {
+export async function ipfsHealthCheck(api = {}, name = 'ipfs') {
   try {
     if (!api.ipfs || !api.ipfs.pid) throw new ConnectionError({ name })
     const { spawnfile, pid, killed } = api.ipfs
@@ -101,9 +102,4 @@ async function ipfsHealthCheack(api = {}, name = 'ipfs') {
   } catch (error) {
     return { name, status: 'error', error }
   }
-}
-
-module.exports = {
-  setupIpfs,
-  ipfsHealthCheack,
 }

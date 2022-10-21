@@ -1,8 +1,8 @@
-const { describe, beforeEach, afterEach, it } = require('mocha')
-const sinon = require('sinon')
-const { expect } = require('chai')
+import { describe, beforeEach, afterEach, it } from 'mocha'
+import sinon from 'sinon'
+import { expect } from 'chai'
 
-const { setupKeyWatcher } = require('../../app/keyWatcher/keyWatcher')
+import { setupKeyWatcher } from '../../app/keyWatcher/keyWatcher.js'
 
 const setupPolkadotMock = (context = {}) => {
   return {

@@ -1,11 +1,12 @@
-const path = require('path')
-const fs = require('fs/promises')
-const { IPFS_PATH } = require('./env')
-const logger = require('./logger')
+import path from 'path'
+import fs from 'fs/promises'
 
-const swarmKeyPath = path.join(IPFS_PATH, 'swarm.key')
+import env from './env.js'
+import logger from './logger.js'
 
-async function removeSwarmKeyFile() {
+const swarmKeyPath = path.join(env.IPFS_PATH, 'swarm.key')
+
+export async function removeSwarmKeyFile() {
   try {
     await fs.rm(swarmKeyPath)
   } catch (err) {
@@ -15,7 +16,7 @@ async function removeSwarmKeyFile() {
   }
 }
 
-async function createSwarmKeyFile({ swarmKey }) {
+export async function createSwarmKeyFile({ swarmKey }) {
   logger.info('Writing IPFS swarm key to: %s', swarmKeyPath)
   logger.trace('Writing IPFS swarm key with: %s', `0x${swarmKey.toString('hex')}`)
 
@@ -26,9 +27,4 @@ async function createSwarmKeyFile({ swarmKey }) {
     Buffer.from(['/key/swarm/psk/1.0.0/', '/base16/', swarmKey.toString('hex')].join('\n'), 'utf8'),
     { mode: 0o400 }
   )
-}
-
-module.exports = {
-  removeSwarmKeyFile,
-  createSwarmKeyFile,
 }

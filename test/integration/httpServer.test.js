@@ -1,14 +1,14 @@
-const { describe, before, it } = require('mocha')
-const { expect } = require('chai')
-const fetch = require('node-fetch')
+import { describe, before, it } from 'mocha'
+import { expect } from 'chai'
+import fetch from 'node-fetch'
 
-const { PORT } = require('../../app/env')
+import env from '../../app/env.js'
 
 describe('health checks', function () {
   const context = {}
 
   before(async function () {
-    context.response = await fetch(`http://localhost:${PORT}/health`)
+    context.response = await fetch(`http://localhost:${env.PORT}/health`)
     context.body = await context.response.json()
   })
 

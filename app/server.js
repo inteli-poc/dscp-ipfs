@@ -1,14 +1,13 @@
-const express = require('express')
-const pinoHttp = require('pino-http')
+import express from 'express'
+import pinoHttp from 'pino-http'
 
-const { PORT } = require('./env')
-const logger = require('./logger')
-const { createNodeApi, setupKeyWatcher, nodeHealthCheck } = require('./keyWatcher')
-const { ipfsHealthCheack } = require('./ipfs')
-const { setupIpfs } = require('./ipfs')
-const ServiceWatcher = require('./utils/ServiceWatcher')
+import env from './env.js'
+import logger from './logger.js'
+import { createNodeApi, setupKeyWatcher, nodeHealthCheck } from './keyWatcher/index.js'
+import { ipfsHealthCheck, setupIpfs } from './ipfs.js'
+import ServiceWatcher from './utils/ServiceWatcher.js'
 
-async function createHttpServer() {
+export async function createHttpServer() {
   const app = express()
   const requestLogger = pinoHttp({ logger })
   const ipfs = await setupIpfs()
@@ -16,7 +15,7 @@ async function createHttpServer() {
 
   const sw = new ServiceWatcher({
     substrate: { healthCheck: () => nodeHealthCheck(api._api) },
-    ipfs: { healthCheck: () => ipfsHealthCheack(ipfs) },
+    ipfs: { healthCheck: () => ipfsHealthCheck(ipfs) },
   })
   await sw.start()
 
@@ -54,13 +53,13 @@ async function createHttpServer() {
 }
 
 /* istanbul ignore next */
-async function startServer() {
+export async function startServer() {
   try {
     const { app, ipfs, sw } = await createHttpServer()
     const server = await new Promise((resolve, reject) => {
-      const server = app.listen(PORT, (err) => {
+      const server = app.listen(env.PORT, (err) => {
         if (err) return reject(err)
-        logger.info(`Listening on port ${PORT} `)
+        logger.info(`Listening on port ${env.PORT} `)
         resolve(server)
       })
 
@@ -90,5 +89,3 @@ async function startServer() {
     process.exit(1)
   }
 }
-
-module.exports = { startServer, createHttpServer }
