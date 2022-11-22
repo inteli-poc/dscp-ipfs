@@ -1,11 +1,13 @@
 import express from 'express'
 import pinoHttp from 'pino-http'
+import promBundle from 'express-prom-bundle'
 
 import env from './env.js'
 import logger from './logger.js'
 import { createNodeApi, setupKeyWatcher, nodeHealthCheck } from './keyWatcher/index.js'
 import { ipfsHealthCheck, setupIpfs } from './ipfs.js'
 import ServiceWatcher from './utils/ServiceWatcher.js'
+
 
 export async function createHttpServer() {
   const app = express()
@@ -26,6 +28,8 @@ export async function createHttpServer() {
       await ipfs.start({ swarmKey: value })
     },
   })
+
+  app.use(promBundle({ includePath: true }))
 
   app.use((req, res, next) => {
     if (req.path !== '/health') requestLogger(req, res)
