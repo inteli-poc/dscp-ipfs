@@ -8,7 +8,6 @@ import { createNodeApi, setupKeyWatcher, nodeHealthCheck } from './keyWatcher/in
 import { ipfsHealthCheck, setupIpfs } from './ipfs.js'
 import ServiceWatcher from './utils/ServiceWatcher.js'
 
-
 export async function createHttpServer() {
   const app = express()
   const requestLogger = pinoHttp({ logger })
@@ -29,14 +28,16 @@ export async function createHttpServer() {
     },
   })
 
-  app.use(promBundle({
-    includePath: true,
-    promClient: {
-      collectDefaultMetrics: {
-        prefix: 'ipfs_'
-      }
-    }
-  }))
+  app.use(
+    promBundle({
+      includePath: true,
+      promClient: {
+        collectDefaultMetrics: {
+          prefix: 'ipfs_',
+        },
+      },
+    })
+  )
 
   app.use((req, res, next) => {
     if (req.path !== '/health') requestLogger(req, res)
