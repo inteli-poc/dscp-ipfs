@@ -29,7 +29,14 @@ export async function createHttpServer() {
     },
   })
 
-  app.use(promBundle({ includePath: true, promClient: { collectDefaultMetrics: { prefix: 'ipfs'} }}))
+  app.use(promBundle({
+    includePath: true,
+    promClient: {
+      collectDefaultMetrics: {
+        prefix: 'ipfs_'
+      }
+    }
+  }))
 
   app.use((req, res, next) => {
     if (req.path !== '/health') requestLogger(req, res)
