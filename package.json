@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/dscp-ipfs",
-  "version": "2.7.0",
+  "version": "2.8.0",
   "description": "Service for DSCP",
   "main": "app/index.js",
   "type": "module",
@@ -36,8 +36,10 @@
     "dotenv": "^16.0.3",
     "envalid": "^7.3.1",
     "express": "^4.18.2",
+    "express-prom-bundle": "^6.5.0",
     "pino": "^8.6.1",
-    "pino-http": "^8.2.1"
+    "pino-http": "^8.2.1",
+    "prom-client": "^12.0.0"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.19.1",
