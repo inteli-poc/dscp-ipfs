@@ -33,7 +33,7 @@ export async function createHttpServer() {
       includePath: true,
       promClient: {
         collectDefaultMetrics: {
-          prefix: 'ipfs_',
+          prefix: 'dscp_ipfs_',
         },
       },
     })
