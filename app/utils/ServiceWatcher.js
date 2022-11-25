@@ -1,3 +1,5 @@
+import * as client from 'prom-client'
+
 import { TimeoutError } from './Errors.js'
 import env from '../env.js'
 
@@ -11,6 +13,13 @@ class ServiceWatcher {
     this.#pollPeriod = env.HEALTHCHECK_POLL_PERIOD_MS
     this.#timeout = env.HEALTHCHECK_TIMEOUT_MS
     this.services = this.#init(apis)
+    this.metrics = {
+      peerCount: new client.Gauge({
+        name: 'dscp_ipfs_swarm_peer_count',
+        help: 'help needed here',
+        labelNames: [ 'type' ]
+      })
+    }
   }
 
   delay(ms, service = false) {
@@ -54,6 +63,9 @@ class ServiceWatcher {
       try {
         const services = await getAll
         services.forEach(({ name, ...rest }) => this.update(name, rest))
+        const { __tmpConnectedPeers, __tmpDiscoveredPeers } = await new Promise((r) => r({ __tmpDiscoveredPeers: 1, __tmpConnectedPeers: 2}))
+        this.peerCount.set({ type: 'discovered' }, __tmpDiscoveredPeers)
+        this.peerCount.set({ type: 'connected' }, __tmpConnectedPeers)
       } catch (error) {
         // if no service assume that this is server error e.g. TypeError, Parse...
         const name = error.service || 'server'
