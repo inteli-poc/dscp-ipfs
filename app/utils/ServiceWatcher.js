@@ -63,9 +63,9 @@ class ServiceWatcher {
       try {
         const services = await getAll
         services.forEach(({ name, ...rest }) => this.update(name, rest))
-        const { __tmpConnectedPeers, __tmpDiscoveredPeers } = await new Promise((r) => r({ __tmpDiscoveredPeers: 1, __tmpConnectedPeers: 2}))
-        this.peerCount.set({ type: 'discovered' }, __tmpDiscoveredPeers)
-        this.peerCount.set({ type: 'connected' }, __tmpConnectedPeers)
+        const { __tmpConnectedPeers, __tmpDiscoveredPeers } = await new Promise((r) => r({ __tmpDiscoveredPeers: 1, __tmpConnectedPeers: 2 }))
+        this.metrics.peerCount.set({ type: 'discovered' }, __tmpDiscoveredPeers)
+        this.metrics.peerCount.set({ type: 'connected' }, __tmpConnectedPeers)
       } catch (error) {
         // if no service assume that this is server error e.g. TypeError, Parse...
         const name = error.service || 'server'
