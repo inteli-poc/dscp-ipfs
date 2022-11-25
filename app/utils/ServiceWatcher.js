@@ -1,7 +1,9 @@
 import * as client from 'prom-client'
+import fetch from 'node-fetch'
 
 import { TimeoutError } from './Errors.js'
 import env from '../env.js'
+import axios from 'axios'
 
 class ServiceWatcher {
   #pollPeriod
@@ -53,6 +55,21 @@ class ServiceWatcher {
       .filter(Boolean)
   }
 
+  async #updateMetrics() {
+    const connectedPeers = await axios({
+      url: 'http://localhost:5001/api/v0/swarm/peers',
+      method: 'POST',
+    }).then(({ data }) => data)
+    const discoveredPeers = await axios({
+      url: 'http://localhost:5001/api/v0/swarm/addrs',
+      method: 'POST',
+    }).then(({ data }) => data)
+
+    // update instance's metrics object
+    this.metrics.peerCount.set({ type: 'discovered' }, Object.keys(discoveredPeers.Addrs).length) // /api/v0/swarm/connect 
+    this.metrics.peerCount.set({ type: 'connected' }, connectedPeers.Peers?.length || 0) // /api/v0/swarm/peers
+  }
+
   // starts the generator resolving after the first update
   // use ServiceWatcher.gen.return() to stop
   async start() {
@@ -63,9 +80,8 @@ class ServiceWatcher {
       try {
         const services = await getAll
         services.forEach(({ name, ...rest }) => this.update(name, rest))
-        const { __tmpConnectedPeers, __tmpDiscoveredPeers } = await new Promise((r) => r({ __tmpDiscoveredPeers: 1, __tmpConnectedPeers: 2 }))
-        this.metrics.peerCount.set({ type: 'discovered' }, __tmpDiscoveredPeers)
-        this.metrics.peerCount.set({ type: 'connected' }, __tmpConnectedPeers)
+        await this.#updateMetrics()
+
       } catch (error) {
         // if no service assume that this is server error e.g. TypeError, Parse...
         const name = error.service || 'server'

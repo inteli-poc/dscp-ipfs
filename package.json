@@ -33,6 +33,7 @@
   "homepage": "https://github.com/digicatapult/dscp-ipfs#readme",
   "dependencies": {
     "@digicatapult/dscp-node": "^4.4.6",
+    "axios": "^1.2.0",
     "dotenv": "^16.0.3",
     "envalid": "^7.3.1",
     "express": "^4.18.2",
@@ -52,7 +53,6 @@
     "formdata-node": "^5.0.0",
     "go-ipfs": "^0.16.0",
     "mocha": "^10.1.0",
-    "node-fetch": "^3.2.10",
     "nodemon": "^2.0.20",
     "nyc": "^15.1.0",
     "pino-colada": "^2.2.2",
