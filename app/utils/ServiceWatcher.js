@@ -16,11 +16,13 @@ class ServiceWatcher {
     this.#timeout = env.HEALTHCHECK_TIMEOUT_MS
     this.services = this.#init(apis)
     this.metrics = {
-      peerCount: this.metrics.peerCount || new client.Gauge({
-        name: 'dscp_ipfs_swarm_peer_count',
-        help: 'a number of discovered and connected peers',
-        labelNames: ['type'],
-      }),
+      peerCount:
+        this.metrics.peerCount ||
+        new client.Gauge({
+          name: 'dscp_ipfs_swarm_peer_count',
+          help: 'a number of discovered and connected peers',
+          labelNames: ['type'],
+        }),
     }
   }
 
