@@ -30,6 +30,7 @@ const vars = envalid.cleanEnv(
     LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
     PORT: envalid.port({ default: 80, devDefault: 3000 }),
     NODE_HOST: envalid.host({ devDefault: 'localhost' }),
+    IPFS_API: envalid.host({ devDefault: 'localhost:5001/api/v0/' }),
     NODE_PORT: envalid.port({ default: 9944 }),
     IPFS_PATH: envalid.str({ default: '/ipfs', devDefault: path.resolve(__dirname, '..', `data`) }),
     IPFS_EXECUTABLE: envalid.str({

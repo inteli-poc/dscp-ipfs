@@ -12,6 +12,7 @@ class ServiceWatcher {
   constructor(apis) {
     this.report = {}
     this.#pollPeriod = env.HEALTHCHECK_POLL_PERIOD_MS
+    this.ipfsApiUrl = env.IPFS_API
     this.#timeout = env.HEALTHCHECK_TIMEOUT_MS
     this.services = this.#init(apis)
     this.metrics = {
@@ -54,18 +55,18 @@ class ServiceWatcher {
   }
 
   async #updateMetrics() {
-    const connectedPeers = await axios({
-      url: 'http://localhost:5001/api/v0/swarm/peers',
+    const { data: connectedPeers } = await axios({
+      url: `${this.ipfsApiUrl}swarm/peers`,
       method: 'POST',
-    }).then(({ data }) => data)
-    const discoveredPeers = await axios({
-      url: 'http://localhost:5001/api/v0/swarm/addrs',
+    })
+    const { data: discoveredPeers } = await axios({
+      url: `${this.ipfsApiUrl}swarm/addrs`,
       method: 'POST',
-    }).then(({ data }) => data)
+    })
 
     // update instance's metrics object
-    this.metrics.peerCount.set({ type: 'discovered' }, Object.keys(discoveredPeers.Addrs).length) // /api/v0/swarm/connect
-    this.metrics.peerCount.set({ type: 'connected' }, connectedPeers.Peers?.length || 0) // /api/v0/swarm/peers
+    this.metrics.peerCount.set({ type: 'discovered' }, Object.keys(discoveredPeers.Addrs).length)
+    this.metrics.peerCount.set({ type: 'connected' }, connectedPeers.Peers?.length || 0)
   }
 
   // starts the generator resolving after the first update
