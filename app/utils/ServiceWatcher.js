@@ -1,9 +1,8 @@
 import * as client from 'prom-client'
-import fetch from 'node-fetch'
+import axios from 'axios'
 
 import { TimeoutError } from './Errors.js'
 import env from '../env.js'
-import axios from 'axios'
 
 class ServiceWatcher {
   #pollPeriod
@@ -19,8 +18,8 @@ class ServiceWatcher {
       peerCount: new client.Gauge({
         name: 'dscp_ipfs_swarm_peer_count',
         help: 'help needed here',
-        labelNames: [ 'type' ]
-      })
+        labelNames: ['type'],
+      }),
     }
   }
 
@@ -66,7 +65,7 @@ class ServiceWatcher {
     }).then(({ data }) => data)
 
     // update instance's metrics object
-    this.metrics.peerCount.set({ type: 'discovered' }, Object.keys(discoveredPeers.Addrs).length) // /api/v0/swarm/connect 
+    this.metrics.peerCount.set({ type: 'discovered' }, Object.keys(discoveredPeers.Addrs).length) // /api/v0/swarm/connect
     this.metrics.peerCount.set({ type: 'connected' }, connectedPeers.Peers?.length || 0) // /api/v0/swarm/peers
   }
 
@@ -81,7 +80,6 @@ class ServiceWatcher {
         const services = await getAll
         services.forEach(({ name, ...rest }) => this.update(name, rest))
         await this.#updateMetrics()
-
       } catch (error) {
         // if no service assume that this is server error e.g. TypeError, Parse...
         const name = error.service || 'server'
