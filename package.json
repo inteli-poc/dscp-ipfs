@@ -53,6 +53,7 @@
     "formdata-node": "^5.0.0",
     "go-ipfs": "^0.16.0",
     "mocha": "^10.1.0",
+    "node-fetch": "^3.3.0",
     "nodemon": "^2.0.20",
     "nyc": "^15.1.0",
     "pino-colada": "^2.2.2",
