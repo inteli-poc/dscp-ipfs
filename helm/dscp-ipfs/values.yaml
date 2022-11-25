@@ -56,7 +56,7 @@ image:
 
 storage:
   storageClass: ''
-  dataVolumeSize: 1 # in Gigabytes
+  dataVolumeSize: 1  # in Gigabytes
 
 dscpNode:
   enabled: true

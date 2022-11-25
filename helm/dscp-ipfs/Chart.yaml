@@ -1,7 +1,7 @@
 apiVersion: v2
 name: dscp-ipfs
 appVersion: '2.9.1'
-description: A Helm chart for dscp-ipfs
+description: A Helm chart for veritable-ipfs
 version: '2.9.1'
 type: application
 dependencies:
