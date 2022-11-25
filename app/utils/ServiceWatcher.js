@@ -17,7 +17,6 @@ class ServiceWatcher {
     this.metrics = {
       peerCount: new client.Gauge({
         name: 'dscp_ipfs_swarm_peer_count',
-        help: 'help needed here',
         labelNames: ['type'],
       }),
     }
