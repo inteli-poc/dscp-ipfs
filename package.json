@@ -8,7 +8,7 @@
     "test": "NODE_ENV=test mocha --config ./test/mocharc.cjs ./test",
     "test:integration": "NODE_ENV=test mocha --config ./test/mocharc.cjs ./test/integration",
     "test:unit": "NODE_ENV=test mocha --config ./test/mocharc-unit.cjs ./test/unit",
-    "lint": "eslint .",
+    "lint": "eslint . --fix",
     "depcheck": "depcheck",
     "start": "node app/index.js",
     "dev": "NODE_ENV=dev nodemon app/index.js | pino-colada",

@@ -12,17 +12,19 @@ class ServiceWatcher {
   constructor(apis) {
     this.report = {}
     this.#pollPeriod = env.HEALTHCHECK_POLL_PERIOD_MS
-    this.ipfsApiUrl = env.IPFS_API
+    this.ipfsApiUrl = `http://${env.IPFS_API_HOST}:${env.IPFS_API_PORT}/api/v0/`
     this.#timeout = env.HEALTHCHECK_TIMEOUT_MS
     this.services = this.#init(apis)
     this.metrics = {
-      peerCount:
-        this.metrics.peerCount ||
-        new client.Gauge({
-          name: 'dscp_ipfs_swarm_peer_count',
-          help: 'a number of discovered and connected peers',
-          labelNames: ['type'],
-        }),
+      peerCount: () => {
+        if (!this.metrics.peerCount) {
+          return new client.Gauge({
+            name: 'dscp_ipfs_swarm_peer_count',
+            help: 'a number of discovered and connected peers',
+            labelNames: ['type'],
+          })
+        }
+      },
     }
   }
 
@@ -82,9 +84,7 @@ class ServiceWatcher {
       try {
         const services = await getAll
         services.forEach(({ name, ...rest }) => this.update(name, rest))
-        await this.#updateMetrics().catch((err) => {
-          this.metrics = err
-        })
+        await this.#updateMetrics()
       } catch (error) {
         // if no service assume that this is server error e.g. TypeError, Parse...
         const name = error.service || 'server'
