@@ -3,7 +3,7 @@ import fs from 'fs/promises'
 import { spawnSync } from 'child_process'
 import { fileURLToPath } from 'url'
 
-import { IPFS_EXECUTABLE, IPFS_API_PORT, IPFS_PATH } from '../../app/env'
+import { IPFS_EXECUTABLE, IPFS_API_PORT, IPFS_PATH } from '../../app/env.js'
 import { startServer, stopServer } from './helper/server.js'
 import { waitForIpfsApi } from './helper/ipfs.js'
 
