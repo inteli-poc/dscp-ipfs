@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/dscp-ipfs",
-  "version": "2.8.2",
+  "version": "2.9.0",
   "description": "Service for DSCP",
   "main": "app/index.js",
   "type": "module",
@@ -8,7 +8,7 @@
     "test": "NODE_ENV=test mocha --config ./test/mocharc.cjs ./test",
     "test:integration": "NODE_ENV=test mocha --config ./test/mocharc.cjs ./test/integration",
     "test:unit": "NODE_ENV=test mocha --config ./test/mocharc-unit.cjs ./test/unit",
-    "lint": "eslint .",
+    "lint": "eslint . --fix",
     "depcheck": "depcheck",
     "start": "node app/index.js",
     "dev": "NODE_ENV=dev nodemon app/index.js | pino-colada",
@@ -33,6 +33,7 @@
   "homepage": "https://github.com/digicatapult/dscp-ipfs#readme",
   "dependencies": {
     "@polkadot/api": "^9.9.4",
+    "axios": "^1.2.0",
     "dotenv": "^16.0.3",
     "envalid": "^7.3.1",
     "express": "^4.18.2",
@@ -52,7 +53,7 @@
     "formdata-node": "^5.0.0",
     "go-ipfs": "^0.16.0",
     "mocha": "^10.1.0",
-    "node-fetch": "^3.2.10",
+    "node-fetch": "^3.3.0",
     "nodemon": "^2.0.20",
     "nyc": "^15.1.0",
     "pino-colada": "^2.2.2",
