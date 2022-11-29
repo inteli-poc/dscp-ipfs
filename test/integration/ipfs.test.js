@@ -33,8 +33,8 @@ const download = (port) => async (hash) => {
   return contentText
 }
 
-const downloadA = download(env.IPFS_API_PORT)
-const downloadB = download(`5002`) //TODO mm? 50/50 to be fair since it's test i think we should ignore
+const downloadA = download(`5001`)
+const downloadB = download(`5002`)
 
 const setupIpfsWithSwarm = async (context) => {
   before(async function () {

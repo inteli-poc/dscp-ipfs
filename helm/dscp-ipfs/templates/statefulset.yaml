@@ -98,7 +98,7 @@ spec:
                 configMapKeyRef:
                   name: {{ include "dscp-ipfs.fullname" . }}-config
                   key: healthCheckPort
-            - name: IPFS_API_PORT 
+            - name: IPFS_API_PORT
               valueFrom:
                 configMapKeyRef:
                   name: {{ include "dscp-ipfs.fullname" . }}-config
