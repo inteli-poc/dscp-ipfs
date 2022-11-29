@@ -4,13 +4,14 @@ import { FormData, Blob } from 'formdata-node'
 import { expect } from 'chai'
 import delay from 'delay'
 
+import { IPFS_API_PORT } from '../../app/env'
 import { getSwarmKey, setSwarmKey } from './helper/api.js'
 import { setupIPFS, waitForIpfsApi } from './helper/ipfs.js'
 
 const uploadA = async (fileName, contents) => {
   const form = new FormData()
   form.append('file', new Blob([contents]), fileName)
-  const body = await fetch(`http://localhost:5001/api/v0/add?cid-version=0`, {
+  const body = await fetch(`http://localhost:${IPFS_API_PORT}/api/v0/add?cid-version=0`, {
     method: 'POST',
     body: form,
   })
@@ -32,8 +33,8 @@ const download = (port) => async (hash) => {
   return contentText
 }
 
-const downloadA = download(`5001`)
-const downloadB = download(`5002`)
+const downloadA = download(IPFS_API_PORT)
+const downloadB = download(`5002`) //TODO mm? 50/50 to be fair since it's test i think we should ignore
 
 const setupIpfsWithSwarm = async (context) => {
   before(async function () {
@@ -113,7 +114,7 @@ describe('ipfs', function () {
       context.hash = await uploadA('test-file-4.txt', 'Test 4')
       await setSwarmKey(context.swarmKey)
       await delay(500)
-      await waitForIpfsApi(`5001`)
+      await waitForIpfsApi(IPFS_API_PORT)
     })
 
     it('should be retrievable', async function () {

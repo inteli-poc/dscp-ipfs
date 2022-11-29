@@ -84,7 +84,7 @@ class ServiceWatcher {
       try {
         const services = await getAll
         services.forEach(({ name, ...rest }) => this.update(name, rest))
-        await this.#updateMetrics().catch((err) => this.metrics.error = err)
+        await this.#updateMetrics().catch((err) => (this.metrics.error = err))
       } catch (error) {
         // if no service assume that this is server error e.g. TypeError, Parse...
         const name = error.service || 'server'
