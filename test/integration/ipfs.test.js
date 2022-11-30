@@ -4,13 +4,14 @@ import { FormData, Blob } from 'formdata-node'
 import { expect } from 'chai'
 import delay from 'delay'
 
+import env from '../../app/env.js'
 import { getSwarmKey, setSwarmKey } from './helper/api.js'
 import { setupIPFS, waitForIpfsApi } from './helper/ipfs.js'
 
 const uploadA = async (fileName, contents) => {
   const form = new FormData()
   form.append('file', new Blob([contents]), fileName)
-  const body = await fetch(`http://localhost:5001/api/v0/add?cid-version=0`, {
+  const body = await fetch(`http://localhost:${env.IPFS_API_PORT}/api/v0/add?cid-version=0`, {
     method: 'POST',
     body: form,
   })
@@ -113,7 +114,7 @@ describe('ipfs', function () {
       context.hash = await uploadA('test-file-4.txt', 'Test 4')
       await setSwarmKey(context.swarmKey)
       await delay(500)
-      await waitForIpfsApi(`5001`)
+      await waitForIpfsApi(env.IPFS_API_PORT)
     })
 
     it('should be retrievable', async function () {
