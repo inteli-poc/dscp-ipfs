@@ -10,11 +10,11 @@ config:
   logLevel: info
   ipfsApiPort: 5001
   ipfsSwarmPort: 4001
-  ipfsDataPath: "/ipfs"
-  ipfsCommand: "/usr/local/bin/ipfs"
+  ipfsDataPath: '/ipfs'
+  ipfsCommand: '/usr/local/bin/ipfs'
   ipfsArgs:
     - daemon
-    - "--migrate"
+    - '--migrate'
   # ipfsBootNodeAddress: /dnsaddr/blah.test.com/p2p/PeerId # Valid Format for this is /multiaddr/PeerId see https://github.com/multiformats/multiaddr
   ipfsLogLevel: info
   ipfsSwarmAddrFilters:
@@ -52,10 +52,10 @@ statefulSet:
 image:
   repository: digicatapult/dscp-ipfs
   pullPolicy: IfNotPresent
-  tag: 'v2.9.0'
+  tag: 'v2.9.1'
 
 storage:
-  storageClass: ""
+  storageClass: ''
   dataVolumeSize: 1  # in Gigabytes
 
 dscpNode:
