@@ -4,7 +4,6 @@ import os from 'os'
 import path from 'path'
 import fs from 'fs/promises'
 import { spawn, spawnSync } from 'child_process'
-import fetch from 'node-fetch'
 import delay from 'delay'
 import { fileURLToPath } from 'url'
 
@@ -13,21 +12,32 @@ import env from '../../../app/env.js'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-export const waitForIpfsApi = async (port) => {
+export const waitForIpfsApi = async (port, peerCount) => {
   for (let waitCount = 0; waitCount < 60; waitCount++) {
     try {
-      const fetchRes = await fetch(`http://localhost:${port}/api/v0/version`, { method: 'POST' })
+      const fetchRes = await fetch(`http://127.0.0.1:${port}/api/v0/swarm/peers`, { method: 'POST' })
       if (fetchRes.status !== 200) {
         throw new Error()
       }
-      break
+      const res = await fetchRes.json()
+      const { Peers: peers } = res
+
+      if (peerCount === 0) {
+        return
+      }
+
+      if (peers !== null && peers.length >= peerCount) {
+        return
+      }
     } catch (err) {
+      /* empty */
+    } finally {
       await delay(1000)
     }
   }
 }
 
-export const setupIPFS = (context) => {
+export const setupIPFS = (context, peerCount) => {
   before(async function () {
     context.ipfsDir = await fs.mkdtemp(path.join(os.tmpdir(), 'dscp-ipfs-'))
 
@@ -54,7 +64,7 @@ export const setupIPFS = (context) => {
       },
     })
 
-    await waitForIpfsApi(`5002`)
+    await waitForIpfsApi(`5002`, peerCount)
   })
 
   after(async function () {

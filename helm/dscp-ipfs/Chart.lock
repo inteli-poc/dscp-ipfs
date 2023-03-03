@@ -1,6 +1,0 @@
-dependencies:
-- name: dscp-node
-  repository: https://digicatapult.github.io/dscp-node/
-  version: 4.4.6
-digest: sha256:e4dfe909a744991a5af611e5066b52a1e98f2db92f950f457901352e6a847361
-generated: "2022-11-18T09:11:15.092072Z"

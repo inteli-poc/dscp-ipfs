@@ -17,7 +17,7 @@ export const mochaGlobalSetup = async function () {
   this.stopServer = stopServer
 
   await startServer(this)
-  await waitForIpfsApi(env.IPFS_API_PORT)
+  await waitForIpfsApi(env.IPFS_API_PORT, 0)
 }
 
 export const mochaGlobalTeardown = async function () {

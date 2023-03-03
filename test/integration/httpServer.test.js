@@ -1,6 +1,5 @@
 import { describe, before, it } from 'mocha'
 import { expect } from 'chai'
-import fetch from 'node-fetch'
 
 import env from '../../app/env.js'
 
