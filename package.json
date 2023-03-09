@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/dscp-ipfs",
-  "version": "2.9.3",
+  "version": "2.9.4",
   "description": "Service for DSCP",
   "main": "app/index.js",
   "type": "module",
@@ -40,7 +40,7 @@
     "express-prom-bundle": "^6.6.0",
     "pino": "^8.11.0",
     "pino-http": "^8.3.3",
-    "prom-client": "^14.1.1"
+    "prom-client": "^14.2.0"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.19.1",
@@ -48,7 +48,7 @@
     "delay": "^5.0.0",
     "depcheck": "^1.4.3",
     "eslint": "^8.35.0",
-    "eslint-config-prettier": "^8.6.0",
+    "eslint-config-prettier": "^8.7.0",
     "eslint-plugin-prettier": "^4.2.1",
     "formdata-node": "^5.0.0",
     "go-ipfs": "^0.18.1",
