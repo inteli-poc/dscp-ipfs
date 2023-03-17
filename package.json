@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/dscp-ipfs",
-  "version": "2.9.6",
+  "version": "2.9.7",
   "description": "Service for DSCP",
   "main": "app/index.js",
   "type": "module",
@@ -43,7 +43,7 @@
     "prom-client": "^14.2.0"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.19.1",
+    "@babel/eslint-parser": "^7.21.3",
     "chai": "^4.3.7",
     "delay": "^5.0.0",
     "depcheck": "^1.4.3",
