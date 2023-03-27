@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/dscp-ipfs",
-  "version": "2.9.12",
+  "version": "2.9.13",
   "description": "Service for DSCP",
   "main": "app/index.js",
   "type": "module",
@@ -56,7 +56,7 @@
     "nodemon": "^2.0.22",
     "nyc": "^15.1.0",
     "pino-colada": "^2.2.2",
-    "prettier": "^2.8.6",
+    "prettier": "^2.8.7",
     "sinon": "^15.0.2"
   }
 }
