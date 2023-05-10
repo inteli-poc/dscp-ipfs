@@ -1,5 +1,6 @@
 import express from 'express'
 import pinoHttp from 'pino-http'
+import promBundle from 'express-prom-bundle'
 
 import env from './env.js'
 import logger from './logger.js'
@@ -26,6 +27,17 @@ export async function createHttpServer() {
       await ipfs.start({ swarmKey: value })
     },
   })
+
+  app.use(
+    promBundle({
+      includePath: true,
+      promClient: {
+        collectDefaultMetrics: {
+          prefix: 'dscp_ipfs_',
+        },
+      },
+    })
+  )
 
   app.use((req, res, next) => {
     if (req.path !== '/health') requestLogger(req, res)

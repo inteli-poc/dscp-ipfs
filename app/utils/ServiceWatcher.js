@@ -1,3 +1,6 @@
+import * as client from 'prom-client'
+import axios from 'axios'
+
 import { TimeoutError } from './Errors.js'
 import env from '../env.js'
 
@@ -9,8 +12,20 @@ class ServiceWatcher {
   constructor(apis) {
     this.report = {}
     this.#pollPeriod = env.HEALTHCHECK_POLL_PERIOD_MS
+    this.ipfsApiUrl = `http://${env.IPFS_API_HOST}:${env.IPFS_API_PORT}/api/v0/`
     this.#timeout = env.HEALTHCHECK_TIMEOUT_MS
     this.services = this.#init(apis)
+    this.metrics = {
+      peerCount: () => {
+        if (!this.metrics.peerCount) {
+          return new client.Gauge({
+            name: 'dscp_ipfs_swarm_peer_count',
+            help: 'a number of discovered and connected peers',
+            labelNames: ['type'],
+          })
+        }
+      },
+    }
   }
 
   delay(ms, service = false) {
@@ -44,6 +59,21 @@ class ServiceWatcher {
       .filter(Boolean)
   }
 
+  async #updateMetrics() {
+    const { data: connectedPeers } = await axios({
+      url: `${this.ipfsApiUrl}swarm/peers`,
+      method: 'POST',
+    })
+    const { data: discoveredPeers } = await axios({
+      url: `${this.ipfsApiUrl}swarm/addrs`,
+      method: 'POST',
+    })
+
+    // update instance's metrics object
+    this.metrics.peerCount.set({ type: 'discovered' }, Object.keys(discoveredPeers.Addrs).length)
+    this.metrics.peerCount.set({ type: 'connected' }, connectedPeers.Peers?.length || 0)
+  }
+
   // starts the generator resolving after the first update
   // use ServiceWatcher.gen.return() to stop
   async start() {
@@ -54,6 +84,7 @@ class ServiceWatcher {
       try {
         const services = await getAll
         services.forEach(({ name, ...rest }) => this.update(name, rest))
+        await this.#updateMetrics().catch((err) => (this.metrics.error = err))
       } catch (error) {
         // if no service assume that this is server error e.g. TypeError, Parse...
         const name = error.service || 'server'
